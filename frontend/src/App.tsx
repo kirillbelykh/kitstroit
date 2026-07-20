@@ -44,7 +44,6 @@ function Header({ phone, phoneLink, ctaLabel = 'Обсудить проект', 
 }
 
 function App() {
-  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
   const [content, setContent] = useState<PublicContent | null>(null)
   useEffect(() => { api<PublicContent>('/content').then(setContent).catch(() => undefined) }, [])
   const section = (key: string) => content?.sections.find((item) => item.key === key && item.enabled !== false)
@@ -62,28 +61,19 @@ function App() {
   const telegram = content?.telegram_username || content?.settings.telegram || '@kit_comfort'
   const telegramLink = telegram.startsWith('@') ? `https://t.me/${telegram.slice(1)}` : telegram
   const email = content?.settings.email || 'info@kitstroit.ru'
-  useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    let frame = 0
-    const update = () => {
-      document.documentElement.style.setProperty('--page-y', `${window.scrollY}px`)
-      frame = 0
-    }
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update) }
-    addEventListener('scroll', onScroll, { passive: true })
-    return () => { removeEventListener('scroll', onScroll); cancelAnimationFrame(frame) }
-  }, [])
-
   return <div className="site" id="top">
     <Header phone={phone} phoneLink={phoneLink} ctaLabel={hero?.cta_label} ctaUrl={hero?.cta_url} />
     <main>
       <section className="hero" aria-label="Строительство домов под ключ">
         <div className="hero-media">
-          {!reduceMotion && <video autoPlay muted loop playsInline poster="/media/hero.jpg" onError={(e) => { e.currentTarget.style.display = 'none' }}><source src="/media/hero.mp4" type="video/mp4" /></video>}
           <div className="hero-fallback" />
         </div>
         <div className="hero-grid grid-lines" />
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
+        <div className="hero-glass-cluster" aria-hidden="true">
+          <div className="hero-glass hero-glass-main"><span>3 года</span><p>письменной гарантии<br />на выполненные работы</p></div>
+          <div className="hero-glass hero-glass-note"><i /><p>Принимаем проекты<br />на 2026 год</p></div>
+        </div>
         <div className="hero-content">
           <p className="eyebrow">{hero?.eyebrow || 'Архитектура для жизни · с 2016'}</p>
           {hero?.title ? <h1 className="cms-hero-title"><span>{hero.title}</span></h1> : <h1><span>Строительство домов</span><em>под ключ</em><span>с&nbsp;фиксированной сметой</span></h1>}
