@@ -1,4 +1,4 @@
-.PHONY: dev test build up down logs migrate
+.PHONY: dev test build up down logs migrate prod-up prod-logs
 
 dev:
 	docker compose up --build
@@ -21,3 +21,9 @@ logs:
 
 migrate:
 	docker compose run --rm backend uv run alembic upgrade head
+
+prod-up:
+	docker compose -f compose.yaml -f compose.host.yaml up -d --no-build
+
+prod-logs:
+	docker compose -f compose.yaml -f compose.host.yaml logs -f --tail=200
