@@ -48,6 +48,10 @@ function App() {
   useEffect(() => { api<PublicContent>('/content').then(setContent).catch(() => undefined) }, [])
   const section = (key: string) => content?.sections.find((item) => item.key === key && item.enabled !== false)
   const hero = section('hero')
+  const heroTitle = hero?.title || 'Строительство домов под ключ с фиксированной сметой'
+  const [heroTitleLead, heroTitleTail] = heroTitle.split(/под ключ/i)
+  const hasKeyPhrase = heroTitleLead !== heroTitle
+  const heroEyebrow = hero?.eyebrow?.trim().toLowerCase() === 'санкт-петербург и ленинградская область' ? 'Архитектура для жизни · с 2016' : hero?.eyebrow || 'Архитектура для жизни · с 2016'
   const proof = section('proof')
   const process = section('process')
   const guarantee = section('guarantee')
@@ -68,39 +72,10 @@ function App() {
         <div className="hero-media">
           <div className="hero-fallback" />
         </div>
-        <div className="hero-grid grid-lines" />
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-plan" aria-hidden="true">
-          <svg viewBox="0 0 720 360" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g className="plan-dimensions">
-              <path d="M80 42V20M600 42V20M80 28H600M68 50H46M68 280H46M54 50V280" />
-              <path d="M80 24l8-4v8l-8-4ZM600 24l-8-4v8l8-4ZM50 50l-4 8h8l-4-8ZM50 280l-4-8h8l-4 8Z" />
-            </g>
-            <g className="plan-walls">
-              <path d="M80 50H600V280H80V50Z" />
-              <path d="M245 50V280M80 130H245M80 210H245M435 50V144M435 200V280M515 200V280" />
-              <path d="M245 144H435M245 200H600M515 240H600" />
-              <path d="M112 50v12M202 50v12M318 50v12M512 50v12M588 92h12M588 164h12M80 95h12M80 170h12M80 248h12" />
-            </g>
-            <g className="plan-openings">
-              <path d="M245 92h-34M211 92a34 34 0 0 1 34 34M245 170h-34M211 170a34 34 0 0 1 34 34M435 144v-36M435 108a36 36 0 0 0-36 36M515 200v34M515 234a34 34 0 0 1-34-34" />
-              <path d="M310 280v-14M420 280v-14M310 270h110" />
-            </g>
-            <g className="plan-furniture">
-              <rect x="100" y="72" width="94" height="44" rx="2" /><rect x="100" y="146" width="94" height="44" rx="2" /><rect x="100" y="226" width="94" height="36" rx="2" />
-              <rect x="278" y="73" width="112" height="25" rx="2" /><path d="M278 98v28M390 98v28" />
-              <rect x="282" y="223" width="92" height="31" rx="15.5" /><circle cx="299" cy="238.5" r="9" /><circle cx="357" cy="238.5" r="9" />
-              <path d="M462 78h94v42h-94zM477 82v34M541 82v34M458 159h103M458 165h103" />
-            </g>
-            <g className="plan-terrace">
-              <path d="M260 280H570V336H260V280Z" />
-              <path d="M278 280v56M300 280v56M322 280v56M344 280v56M366 280v56M388 280v56M410 280v56M432 280v56M454 280v56M476 280v56M498 280v56M520 280v56M542 280v56" />
-            </g>
-          </svg>
-        </div>
         <div className="hero-content">
-          <p className="eyebrow">{hero?.eyebrow || 'Архитектура для жизни · с 2016'}</p>
-          {hero?.title ? <h1 className="cms-hero-title"><span>{hero.title}</span></h1> : <h1><span>Строительство домов</span><em>под ключ</em><span>с&nbsp;фиксированной сметой</span></h1>}
+          <p className="eyebrow">{heroEyebrow}</p>
+          {hasKeyPhrase ? <h1><span>{heroTitleLead.trim()}</span><em>под ключ</em><span>{heroTitleTail.trim()}</span></h1> : <h1 className="cms-hero-title"><span>{heroTitle}</span></h1>}
           <div className="hero-bottom">
             <p>{hero?.body || 'Проектируем и строим современные загородные дома, в которых всё продумано до привычки.'}</p>
             <div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div>
