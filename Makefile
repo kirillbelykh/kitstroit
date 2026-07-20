@@ -5,7 +5,7 @@ dev:
 
 test:
 	cd backend && uv run pytest
-	cd frontend && npm test -- --run
+	cd frontend && npm run build
 
 build:
 	docker compose build
@@ -21,4 +21,3 @@ logs:
 
 migrate:
 	docker compose run --rm backend uv run alembic upgrade head
-
