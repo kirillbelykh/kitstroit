@@ -55,7 +55,7 @@ const faqs = [
   ['Можно ли построить по нашему проекту?', 'Да. Проверим готовый проект, адаптируем его к участку и инженерным условиям. Если проекта нет — разработаем с нуля.'],
   ['Смета действительно не меняется?', 'Стоимость и состав работ фиксируем в договоре. Изменения возможны только по вашему решению и оформляются отдельным соглашением.'],
   ['Как контролировать стройку?', 'У вас будет календарный план, закреплённый прораб и регулярные фотоотчёты. Скрытые работы принимаются по актам.'],
-  ['Какая гарантия на дом?', 'Даём письменную гарантию 3 года на выполненные работы и остаёмся на связи после передачи дома.'],
+  ['Какая гарантия на дом?', 'Даём письменную гарантию 10 лет на выполненные работы и остаёмся на связи после передачи дома.'],
 ]
 
 function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
@@ -100,7 +100,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       </div>
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
-        <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>Концепция</dd></div><div><dt>Гарантия</dt><dd>3 года</dd></div></dl>
+        <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>Концепция</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
         <a className="text-arrow" href="#lead">Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
@@ -166,7 +166,7 @@ function App() {
       <section className="hero" aria-label="Строительство домов под ключ">
         <div className="hero-media" aria-hidden="true"><div className="hero-slide hero-slide-one" /><div className="hero-slide hero-slide-two" /><div className="hero-slide hero-slide-three" /></div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2016</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 3 года.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
@@ -181,9 +181,9 @@ function App() {
       <ProcessSection eyebrow={process?.eyebrow} title={process?.title} body={process?.body} />
       <Testimonials />
 
-      <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 06 — в цифрах ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{[['10', 'лет опыта'], ['120+', 'завершённых объектов'], ['3', 'года письменной гарантии'], ['1', 'ответственный подрядчик']].map(([value, label], i) => <Reveal key={value + label} className="metric" delay={i * 60}><strong>{value}</strong><span>{label}</span></Reveal>)}</div></section>
+      <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 06 — в цифрах ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{[['13', 'лет опыта'], ['120+', 'завершённых объектов'], ['10', 'лет письменной гарантии'], ['1', 'ответственный подрядчик']].map(([value, label], i) => <Reveal key={value + label} className="metric" delay={i * 60}><strong>{value}</strong><span>{label}</span></Reveal>)}</div></section>
 
-      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 07 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>3</strong><span>года<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
+      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 07 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
       <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 08 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
 
