@@ -153,12 +153,13 @@ function App() {
   const projects = useMemo<Project[]>(() => publicProjects.length ? publicProjects.map((project, index) => {
     const fallback = fallbackProjects[index % fallbackProjects.length]
     const gallery = [project.cover_url, ...(project.media?.map((item) => item.url) || [])].filter((url): url is string => Boolean(url))
-    return { title: project.title, place: project.location || 'Санкт-Петербург и ЛО', area: project.area ? `${project.area} м²` : fallback.area, summary: project.summary || fallback.summary, media: gallery.length ? [...new Set(gallery)] : fallback.media, plan: fallback.plan }
+    return { title: project.title, place: project.location || 'Санкт-Петербург и ЛО', area: project.area ? `${project.area} м²` : fallback.area, summary: project.summary || fallback.summary, media: [...new Set([...gallery, ...fallback.media])], plan: fallback.plan }
   }) : fallbackProjects, [publicProjects])
   const phone = content?.settings.phone || content?.settings.phone_display || PHONE_DISPLAY
   const phoneLink = content?.settings.phone_href || `tel:${phone.replace(/\D/g, '').replace(/^8/, '+7')}` || PHONE_LINK
   const telegram = content?.telegram_username || content?.settings.telegram || '@kit_comfort'
-  const telegramLink = telegram.startsWith('@') ? `https://t.me/${telegram.slice(1)}` : telegram
+  const telegramLink = /^https?:\/\//.test(telegram) ? telegram : `https://t.me/${telegram.replace(/^@/, '')}`
+  const telegramLabel = /^https?:\/\//.test(telegram) ? telegram : `@${telegram.replace(/^@/, '')}`
   const email = content?.settings.email || 'info@kitstroit.ru'
   return <div className="site" id="top">
     <Header phone={phone} phoneLink={phoneLink} />
@@ -189,7 +190,7 @@ function App() {
 
       <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 09 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
-      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer"><span>Telegram</span>{telegram}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
+      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer"><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
     <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><a href="/privacy">Политика конфиденциальности</a></footer>
     <div className="mobile-cta"><a href={phoneLink}>Позвонить</a><a href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
