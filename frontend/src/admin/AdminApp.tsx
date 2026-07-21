@@ -74,10 +74,11 @@ function Texts() {
 
 function TelegramSettings() {
   const [value, setValue] = useState<Telegram>({ bot_username: '', admin_chat_ids: [], enabled: false })
+  const [adminIds, setAdminIds] = useState('')
   const [saved, setSaved] = useState(false)
-  useEffect(() => { api<Telegram>('/admin/telegram').then(setValue) }, [])
-  async function submit(event: FormEvent) { event.preventDefault(); await api('/admin/telegram', { method: 'PUT', body: JSON.stringify(value) }); setSaved(true); setTimeout(() => setSaved(false), 2200) }
-  return <section className="admin-section"><SectionHead title="Telegram" note="Уведомления о новых заявках" /><form className="editor narrow" onSubmit={submit}><Field label="Username бота" value={value.bot_username} onChange={(bot_username) => setValue({ ...value, bot_username })} placeholder="@kit_bot" /><label>ID администраторов<textarea rows={5} value={value.admin_chat_ids.join('\n')} onChange={(e) => setValue({ ...value, admin_chat_ids: e.target.value.split(/[\s,]+/).filter(Boolean).map(Number).filter(Number.isFinite) })} placeholder={'123456789\n987654321'} /><small>Один числовой chat ID на строку</small></label><label className="check"><input type="checkbox" checked={value.enabled} onChange={(e) => setValue({ ...value, enabled: e.target.checked })} /> Отправлять уведомления</label><button className="admin-primary">{saved ? 'Сохранено ✓' : 'Сохранить'}</button></form></section>
+  useEffect(() => { api<Telegram>('/admin/telegram').then((data) => { setValue(data); setAdminIds(data.admin_chat_ids.join('\n')) }) }, [])
+  async function submit(event: FormEvent) { event.preventDefault(); const next = { ...value, admin_chat_ids: adminIds.split(/[\s,]+/).filter(Boolean).map(Number).filter(Number.isFinite) }; await api('/admin/telegram', { method: 'PUT', body: JSON.stringify(next) }); setValue(next); setSaved(true); setTimeout(() => setSaved(false), 2200) }
+  return <section className="admin-section"><SectionHead title="Telegram" note="Уведомления о новых заявках" /><form className="editor narrow" onSubmit={submit}><Field label="Username бота" value={value.bot_username} onChange={(bot_username) => setValue({ ...value, bot_username })} placeholder="@kit_bot" /><label>ID администраторов<textarea rows={5} value={adminIds} onChange={(e) => setAdminIds(e.target.value)} placeholder={'123456789\n987654321'} /><small>Один числовой chat ID на строку</small></label><label className="check"><input type="checkbox" checked={value.enabled} onChange={(e) => setValue({ ...value, enabled: e.target.checked })} /> Отправлять уведомления</label><button className="admin-primary">{saved ? 'Сохранено ✓' : 'Сохранить'}</button></form></section>
 }
 
 function Settings() {
