@@ -46,9 +46,8 @@ const steps = [
 ] as const
 
 const testimonials = [
-  { name: 'Анна и Михаил', place: 'Дом 186 м² · Всеволожский район', text: 'Мы боялись не самой стройки, а бесконечных решений и сюрпризов в смете. В KIT всё было разложено по этапам: мы видели ход работ, понимали бюджет и в итоге получили именно тот спокойный дом, который представляли.', image: '/media/generated/project-forest.webp' },
-  { name: 'Екатерина', place: 'Дом 164 м² · Репино', text: 'В проекте услышали не только наши пожелания, но и привычки. Где оставить коляску, как зайти с собаками после прогулки, куда падает утренний свет. Из таких деталей и получилось ощущение дома.', image: '/media/project-cabin.jpg' },
-  { name: 'Илья и Дарья', place: 'Дом 214 м² · Приозерский район', text: 'На объект приезжали спокойно: порядок, понятный следующий этап, прораб всегда на связи. Особенно ценим, что все сложные моменты объясняли человеческим языком и давали выбор.', image: '/media/project-lake.jpg' },
+  { name: 'Павлов SKY', place: 'Ленинградская область', text: 'Мы боялись не самой стройки, а бесконечных решений и сюрпризов в смете. В KIT всё было разложено по этапам: мы видели ход работ, понимали бюджет и в итоге получили именно тот спокойный дом, который представляли.', image: '/media/projects/pavlov-sky/img-2085.webp' },
+  { name: 'ЖК Familia', place: 'Петровский остров · Санкт-Петербург', text: 'В проекте услышали не только наши пожелания, но и привычки. Где оставить коляску, как зайти с собаками после прогулки, куда падает утренний свет. Из таких деталей и получилось ощущение дома.', image: '/media/projects/familia/img-2402.webp' },
 ] as const
 
 const faqs = [
@@ -113,7 +112,7 @@ function VideoReviews() {
   const [expanded, setExpanded] = useState(false)
   const visible = expanded ? videoReviews : videoReviews.slice(0, 4)
   return <section id="videos" className="videos section-ink">
-    <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2><p>Короткие проходы по пространствам, детали и моменты со стройки. Сейчас здесь временные демонстрационные материалы.</p></Reveal>
+    <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2></Reveal>
     <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video controls preload="metadata" playsInline poster={poster}><source src={src} type="video/mp4" /></video><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
     <button className="more-videos" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>{expanded ? 'Свернуть' : 'Больше видео'} <span>{expanded ? '−' : '+'}</span></button>
   </section>
@@ -134,7 +133,7 @@ function Testimonials() {
   const review = testimonials[active]
   const move = (direction: number) => setActive((active + direction + testimonials.length) % testimonials.length)
   return <section className="testimonials section-light">
-    <Reveal className="section-head"><p className="section-index">[ 05 — отзывы ]</p><h2>Дом глазами<br /><em>тех, кто уже живёт.</em></h2><p>Временные истории показывают формат блока. Перед публикацией заменим их на подтверждённые отзывы клиентов.</p></Reveal>
+    <Reveal className="section-head"><p className="section-index">[ 05 — отзывы ]</p><h2>Дом глазами<br /><em>тех, кто уже живёт.</em></h2></Reveal>
     <div className="testimonial-slide"><MediaImage src={review.image} alt={review.place} /><div className="testimonial-copy"><span className="quote-mark">“</span><blockquote>{review.text}</blockquote><p><strong>{review.name}</strong>{review.place}</p><div><button aria-label="Предыдущий отзыв" onClick={() => move(-1)}>←</button><span>0{active + 1} / 0{testimonials.length}</span><button aria-label="Следующий отзыв" onClick={() => move(1)}>→</button></div></div></div>
   </section>
 }
