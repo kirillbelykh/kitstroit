@@ -12,4 +12,4 @@ htmlcov/
 *.log
 media/uploads/
 backups/
-
+media-original/

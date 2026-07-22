@@ -114,7 +114,7 @@ function VideoReviews() {
   const visible = expanded ? videoReviews : videoReviews.slice(0, 4)
   return <section id="videos" className="videos section-ink">
     <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2><p>Короткие проходы по пространствам, детали и моменты со стройки. Сейчас здесь временные демонстрационные материалы.</p></Reveal>
-    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video controls preload="metadata" playsInline poster={poster}>{index === 0 && <source src="/media/original/pavlov-sky-overview.mp4" type='video/mp4; codecs="hvc1"' />}<source src={src} type="video/mp4" /></video><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
+    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video controls preload="metadata" playsInline poster={poster}>{index === 0 && <source src="/media/original/pavlov-sky-overview.mp4" type="video/mp4" />}<source src={src} type="video/mp4" /></video><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
     <button className="more-videos" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>{expanded ? 'Свернуть' : 'Больше видео'} <span>{expanded ? '−' : '+'}</span></button>
   </section>
 }
