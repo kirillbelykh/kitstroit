@@ -95,7 +95,8 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     <div className="project-tabs" role="tablist" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} role="tab" aria-selected={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</div>
     <div className="magazine">
       <div className="magazine-media">
-        <img key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
+        <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
+        <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} onLoad={(event) => event.currentTarget.classList.toggle('is-portrait', event.currentTarget.naturalHeight > event.currentTarget.naturalWidth)} />
         <div className="magazine-controls"><button aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button><span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span><button aria-label="Следующий кадр" onClick={() => move(1)}>→</button></div>
       </div>
       <div className="magazine-copy">

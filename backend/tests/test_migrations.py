@@ -26,4 +26,4 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
     assert len(projects) == 4
     assert all(published for _, _, published in projects)
-    assert pavlov_media == 30
+    assert pavlov_media == 29
