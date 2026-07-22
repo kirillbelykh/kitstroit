@@ -26,7 +26,7 @@ const fallbackProjects: Project[] = [
 ]
 
 const videoReviews = [
-  ['Северный сад · гостиная', '/media/reviews/minimalist-living-room.mp4', '/media/generated/project-interior.webp'],
+  ['Павлов SKY · обзор дома', '/media/reviews/pavlov-sky-overview.mp4', '/media/projects/pavlov-sky/img-2085.webp'],
   ['Дом у воды · дерево и свет', '/media/reviews/warm-wood-interior.mp4', '/media/project-lake.jpg'],
   ['Тихая терраса · мастер-спальня', '/media/reviews/luxury-interior-pan.mp4', '/media/interior-4k.webp'],
   ['Репино · выход в сад', '/media/reviews/interior-with-terrace.mp4', '/media/project-cabin.jpg'],
