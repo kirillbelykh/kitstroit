@@ -3,9 +3,9 @@ import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from '
 import { api } from './api'
 
 type ContentSection = { key: string; eyebrow?: string; title?: string; body?: string; cta_label?: string; cta_url?: string; enabled?: boolean }
-type PublicProject = { id?: number; title: string; summary?: string; location?: string; area?: string | number; cover_url?: string; published?: boolean; media?: { url: string }[] }
+type PublicProject = { id?: number; slug?: string; title: string; summary?: string; location?: string; area?: string | number; cover_url?: string; published?: boolean; media?: { url: string }[] }
 type PublicContent = { settings: Record<string, string>; sections: ContentSection[]; projects: PublicProject[]; telegram_username?: string }
-type Project = { title: string; place: string; area: string; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
+type Project = { title: string; place: string; area: string; status?: string; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
 
 const fallbackProjects: Project[] = [
   {
@@ -100,7 +100,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       </div>
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
-        <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>Концепция</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
+        <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
         <a className="text-arrow" href="#lead">Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
@@ -153,7 +153,15 @@ function App() {
   const projects = useMemo<Project[]>(() => publicProjects.length ? publicProjects.map((project, index) => {
     const fallback = fallbackProjects[index % fallbackProjects.length]
     const gallery = [project.cover_url, ...(project.media?.map((item) => item.url) || [])].filter((url): url is string => Boolean(url))
-    return { title: project.title, place: project.location || 'Санкт-Петербург и ЛО', area: project.area ? `${project.area} м²` : fallback.area, summary: project.summary || fallback.summary, media: [...new Set([...gallery, ...fallback.media])], plan: fallback.plan }
+    return {
+      title: project.title,
+      place: project.location || 'Санкт-Петербург и ЛО',
+      area: project.area ? `${project.area} м²` : '—',
+      status: project.slug === 'pavlov-sky' ? 'Готовый объект' : 'Концепция',
+      summary: project.summary || fallback.summary,
+      media: [...new Set(gallery.length ? gallery : fallback.media)],
+      plan: fallback.plan,
+    }
   }) : fallbackProjects, [publicProjects])
   const phone = content?.settings.phone || content?.settings.phone_display || PHONE_DISPLAY
   const phoneLink = content?.settings.phone_href || `tel:${phone.replace(/\D/g, '').replace(/^8/, '+7')}` || PHONE_LINK
