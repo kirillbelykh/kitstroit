@@ -21,9 +21,13 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
         pavlov_media = connection.execute(
             "SELECT COUNT(*) FROM project_media WHERE project_id = (SELECT id FROM projects WHERE slug = 'pavlov-sky')"
         ).fetchone()[0]
+        familia_media = connection.execute(
+            "SELECT COUNT(*) FROM project_media WHERE project_id = (SELECT id FROM projects WHERE slug = 'familia')"
+        ).fetchone()[0]
 
     assert section_keys == {"hero", "proof", "process", "guarantee", "founder", "lead"}
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
-    assert len(projects) == 4
+    assert len(projects) == 5
     assert all(published for _, _, published in projects)
     assert pavlov_media == 29
+    assert familia_media == 17

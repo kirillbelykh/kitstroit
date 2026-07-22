@@ -96,7 +96,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     <div className="magazine">
       <div className="magazine-media">
         <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
-        <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} onLoad={(event) => event.currentTarget.classList.toggle('is-portrait', event.currentTarget.naturalHeight > event.currentTarget.naturalWidth)} />
+        <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
         <div className="magazine-controls"><button aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button><span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span><button aria-label="Следующий кадр" onClick={() => move(1)}>→</button></div>
       </div>
       <div className="magazine-copy">
@@ -158,7 +158,7 @@ function App() {
       title: project.title,
       place: project.location || 'Санкт-Петербург и ЛО',
       area: project.area ? `${project.area} м²` : '—',
-      status: project.slug === 'pavlov-sky' ? 'Готовый объект' : 'Концепция',
+      status: ['pavlov-sky', 'familia'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
       summary: project.summary || fallback.summary,
       media: [...new Set(gallery.length ? gallery : fallback.media)],
       plan: fallback.plan,

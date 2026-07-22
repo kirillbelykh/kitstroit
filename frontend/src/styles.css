@@ -106,7 +106,6 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 .magazine { display: grid; grid-template-columns: 75% 25%; min-height: 50rem; border-bottom: 1px solid var(--line-light); }
 .magazine-media { position: relative; height: 50rem; overflow: hidden; background: var(--ink-soft); }
 .magazine-image { position: relative; z-index: 1; height: 100%; object-fit: cover; animation: image-arrive .65s ease; }
-.magazine-image.is-portrait { object-fit: contain; }
 .magazine-backdrop { position: absolute; inset: -2rem; width: calc(100% + 4rem); height: calc(100% + 4rem); object-fit: cover; filter: blur(28px) saturate(.8) brightness(.7); transform: scale(1.04); }
 @keyframes image-arrive { from { opacity: .25; transform: scale(1.012); } }
 .magazine-controls { position: absolute; z-index: 2; right: 1rem; bottom: 1rem; display: flex; align-items: center; gap: 1rem; padding: .55rem; color: var(--ink); background: rgba(239,237,228,.94); }
