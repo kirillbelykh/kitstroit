@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
 import { api } from './api'
 
@@ -60,9 +60,33 @@ const faqs = [
 
 function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
   const [open, setOpen] = useState(false)
+  const menuButtonRef = useRef<HTMLButtonElement>(null)
+  const navRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    const previousOverflow = document.body.style.overflow
+    const backgroundElements = Array.from(document.querySelectorAll<HTMLElement>('.skip-link, .site > main, .site > footer, .mobile-cta'))
+    const previousInert = backgroundElements.map((element) => element.inert)
+    document.body.style.overflow = 'hidden'
+    backgroundElements.forEach((element) => { element.inert = true })
+    navRef.current?.querySelector<HTMLAnchorElement>('a')?.focus()
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      setOpen(false)
+      menuButtonRef.current?.focus()
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      backgroundElements.forEach((element, index) => { element.inert = previousInert[index] })
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [open])
+
   return <header className={open ? 'site-header menu-open' : 'site-header'}>
-    <button className="menu-button" aria-expanded={open} aria-controls="main-menu" onClick={() => setOpen(!open)}><span /><span /><span className="sr-only">Меню</span></button>
-    <nav id="main-menu" className={open ? 'main-nav is-open' : 'main-nav'} aria-label="Главная навигация">
+    <button ref={menuButtonRef} className="menu-button" aria-label={open ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={open} aria-controls="main-menu" onClick={() => setOpen(!open)}><span /><span /><span className="sr-only">Меню</span></button>
+    <nav ref={navRef} id="main-menu" className={open ? 'main-nav is-open' : 'main-nav'} aria-label="Главная навигация">
       <div><a href="#projects" onClick={() => setOpen(false)}>Проекты</a><a href="#founder" onClick={() => setOpen(false)}>Основатель</a></div>
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
     </nav>
@@ -92,7 +116,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const move = (direction: number) => setActiveMedia((activeMedia + direction + project.media.length) % project.media.length)
   return <section id="projects" className="projects section-ink">
     <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Архитектура,<br /><em>которую хочется листать.</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
-    <div className="project-tabs" role="tablist" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} role="tab" aria-selected={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</div>
+    <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
       <div className="magazine-media">
         <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
@@ -114,7 +138,7 @@ function VideoReviews() {
   const visible = expanded ? videoReviews : videoReviews.slice(0, 4)
   return <section id="videos" className="videos section-ink">
     <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2><p>Короткие проходы по пространствам, детали и моменты со стройки. Сейчас здесь временные демонстрационные материалы.</p></Reveal>
-    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video controls preload="metadata" playsInline poster={poster}>{index === 0 && <source src="/media/original/pavlov-sky-overview.mp4" type="video/mp4" />}<source src={src} type="video/mp4" /></video><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
+    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
     <button className="more-videos" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>{expanded ? 'Свернуть' : 'Больше видео'} <span>{expanded ? '−' : '+'}</span></button>
   </section>
 }
@@ -123,7 +147,7 @@ function ProcessSection({ eyebrow, title, body }: { eyebrow?: string; title?: st
   return <section id="process" className="process section-light">
     <Reveal className="section-head"><p className="section-index">{eyebrow || '[ 04 — процесс ]'}</p><h2>{title || <>Путь к дому.<br /><em>Без неизвестности.</em></>}</h2><p>{body || 'Вы понимаете, что происходит сегодня, зачем это делается и какой следующий шаг.'}</p></Reveal>
     <div className="process-cards">{steps.map(([number, stepTitle, text, media], index) => <Reveal className="process-card" key={number} delay={index * 60}>
-      {media.endsWith('.mp4') ? <video src={media} muted autoPlay loop playsInline /> : <img src={media} alt="" loading="lazy" />}
+      {media.endsWith('.mp4') ? <video src={media} muted autoPlay loop playsInline aria-hidden="true" /> : <img src={media} alt="" loading="lazy" />}
       <div><span>{number}</span><h3>{stepTitle}</h3><p>{text}</p></div>
     </Reveal>)}</div>
   </section>
@@ -141,7 +165,21 @@ function Testimonials() {
 
 function App() {
   const [content, setContent] = useState<PublicContent | null>(null)
+  const [showMobileCta, setShowMobileCta] = useState(false)
+  const heroRef = useRef<HTMLElement>(null)
   useEffect(() => { api<PublicContent>('/content').then(setContent).catch(() => undefined) }, [])
+  useEffect(() => {
+    const heroElement = heroRef.current
+    if (!heroElement) return
+    const observer = new IntersectionObserver(([entry]) => setShowMobileCta(!entry.isIntersecting), { threshold: .05 })
+    observer.observe(heroElement)
+    return () => observer.disconnect()
+  }, [])
+  useEffect(() => {
+    if (!window.location.hash) return
+    const frame = requestAnimationFrame(() => document.getElementById(window.location.hash.slice(1))?.scrollIntoView())
+    return () => cancelAnimationFrame(frame)
+  }, [content])
   const section = (key: string) => content?.sections.find((item) => item.key === key && item.enabled !== false)
   const hero = section('hero')
   const heroTitle = !hero?.title || /строительство домов под ключ/i.test(hero.title) ? 'Строим дома, в которых хочется остаться.' : hero.title
@@ -171,9 +209,10 @@ function App() {
   const telegramLabel = /^https?:\/\//.test(telegram) ? telegram : `@${telegram.replace(/^@/, '')}`
   const email = content?.settings.email || 'info@kitstroit.ru'
   return <div className="site" id="top">
+    <a className="skip-link" href="#main-content">Перейти к содержанию</a>
     <Header phone={phone} phoneLink={phoneLink} />
-    <main>
-      <section className="hero" aria-label="Строительство домов под ключ">
+    <main id="main-content">
+      <section ref={heroRef} className="hero" aria-label="Строительство домов под ключ">
         <div className="hero-media" aria-hidden="true"><div className="hero-slide hero-slide-one" /><div className="hero-slide hero-slide-two" /><div className="hero-slide hero-slide-three" /></div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
         <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div></div></div>
@@ -202,7 +241,7 @@ function App() {
       <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer"><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
     <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><a href="/privacy">Политика конфиденциальности</a></footer>
-    <div className="mobile-cta"><a href={phoneLink}>Позвонить</a><a href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
+    <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink}>Позвонить</a><a href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
   </div>
 }
 
