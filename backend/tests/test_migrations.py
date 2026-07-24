@@ -24,10 +24,15 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
         familia_media = connection.execute(
             "SELECT COUNT(*) FROM project_media WHERE project_id = (SELECT id FROM projects WHERE slug = 'familia')"
         ).fetchone()[0]
+        bezobrazov_media = connection.execute(
+            "SELECT COUNT(*) FROM project_media "
+            "WHERE project_id = (SELECT id FROM projects WHERE slug = 'dom-bezobrazova-repino')"
+        ).fetchone()[0]
 
     assert section_keys == {"hero", "proof", "process", "guarantee", "founder", "lead"}
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
-    assert len(projects) == 5
+    assert len(projects) == 6
     assert all(published for _, _, published in projects)
     assert pavlov_media == 29
     assert familia_media == 17
+    assert bezobrazov_media == 21
