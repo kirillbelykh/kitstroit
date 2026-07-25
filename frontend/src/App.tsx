@@ -181,7 +181,7 @@ function App() {
   }, [content])
   const section = (key: string) => content?.sections.find((item) => item.key === key && item.enabled !== false)
   const hero = section('hero')
-  const heroTitle = !hero?.title || /строительство домов под ключ/i.test(hero.title) ? 'Строим дома, в которых хочется остаться.' : hero.title
+  const heroTitle = !hero?.title || /строительство домов под ключ/i.test(hero.title) ? 'Точное соответствие вашим потребностям.' : hero.title
   const founder = section('founder')
   const process = section('process')
   const guarantee = section('guarantee')
