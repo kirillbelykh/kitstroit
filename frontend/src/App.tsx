@@ -39,7 +39,7 @@ const videoReviews = [
 ] as const
 
 const steps = [
-  ['01', 'Знакомство и участок', 'Выезжаем, изучаем рельеф и коммуникации. Собираем ваши сценарии жизни, а не список комнат.', '/media/founder.jpg'],
+  ['01', 'Знакомство и участок', 'Выезжаем, изучаем рельеф и коммуникации. Собираем ваши сценарии жизни, а не список комнат.', '/media/founder.jpg?v=20260726'],
   ['02', 'Архитектура и смета', 'Фиксируем планировку, материалы, инженерные решения, стоимость и календарный план.', '/media/reviews/architectural-blueprints.mp4'],
   ['03', 'Строительство', 'Один прораб и постоянная команда. Фотоотчёты, акты скрытых работ и контроль каждого этапа.', '/media/generated/process-frame.webp'],
   ['04', 'Передача дома', 'Проверяем системы, устраняем замечания и передаём готовый дом с комплектом документов.', '/media/generated/project-forest.webp'],
@@ -107,19 +107,82 @@ function ProjectPlan({ variant }: { variant: Project['plan'] }) {
   </svg>
 }
 
+function ProjectLightbox({ title, media, index, onClose, onMove }: { title: string; media: string[]; index: number; onClose: () => void; onMove: (direction: number) => void }) {
+  const touchStart = useRef<{ x: number; y: number } | null>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const onCloseRef = useRef(onClose)
+  const onMoveRef = useRef(onMove)
+  onCloseRef.current = onClose
+  onMoveRef.current = onMove
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current()
+      if (event.key === 'ArrowLeft') onMoveRef.current(-1)
+      if (event.key === 'ArrowRight') onMoveRef.current(1)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
+  return <div
+    className="project-lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label={`${title}, просмотр фото`}
+    onClick={onClose}
+    onTouchStart={(event) => {
+      const touch = event.changedTouches[0]
+      touchStart.current = { x: touch.clientX, y: touch.clientY }
+    }}
+    onTouchEnd={(event) => {
+      if (!touchStart.current) return
+      const touch = event.changedTouches[0]
+      const dx = touch.clientX - touchStart.current.x
+      const dy = touch.clientY - touchStart.current.y
+      touchStart.current = null
+      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
+      onMove(dx < 0 ? 1 : -1)
+    }}
+  >
+    <button ref={closeRef} className="project-lightbox-close" aria-label="Закрыть" onClick={onClose}>Закрыть</button>
+    <button className="project-lightbox-nav project-lightbox-prev" aria-label="Предыдущий кадр" onClick={(event) => { event.stopPropagation(); onMove(-1) }}>←</button>
+    <img
+      className="project-lightbox-image"
+      key={media[index]}
+      src={media[index]}
+      alt={`${title}, кадр ${index + 1}`}
+      onClick={(event) => event.stopPropagation()}
+      draggable={false}
+    />
+    <button className="project-lightbox-nav project-lightbox-next" aria-label="Следующий кадр" onClick={(event) => { event.stopPropagation(); onMove(1) }}>→</button>
+    <p className="project-lightbox-meta" onClick={(event) => event.stopPropagation()}>{String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}</p>
+  </div>
+}
+
 function ProjectMagazine({ projects }: { projects: Project[] }) {
   const [activeProject, setActiveProject] = useState(0)
   const [activeMedia, setActiveMedia] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const project = projects[activeProject]
-  const selectProject = (index: number) => { setActiveProject(index); setActiveMedia(0) }
-  const move = (direction: number) => setActiveMedia((activeMedia + direction + project.media.length) % project.media.length)
+  const selectProject = (index: number) => { setActiveProject(index); setActiveMedia(0); setLightboxOpen(false) }
+  const move = (direction: number) => setActiveMedia((current) => (current + direction + project.media.length) % project.media.length)
   return <section id="projects" className="projects section-ink">
     <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Архитектура,<br /><em>которую хочется листать.</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
     <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
       <div className="magazine-media">
         <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
-        <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
+        <button className="magazine-open" type="button" onClick={() => setLightboxOpen(true)} aria-label={`Открыть фото ${project.title} на весь экран`}>
+          <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
+          <span className="magazine-open-hint">На весь экран</span>
+        </button>
         <div className="magazine-controls"><button aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button><span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span><button aria-label="Следующий кадр" onClick={() => move(1)}>→</button></div>
       </div>
       <div className="magazine-copy">
@@ -129,6 +192,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       </div>
     </div>
     <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><ProjectPlan variant={project.plan} /></div>
+    {lightboxOpen && <ProjectLightbox title={project.title} media={project.media} index={activeMedia} onClose={() => setLightboxOpen(false)} onMove={move} />}
   </section>
 }
 
@@ -220,7 +284,7 @@ function App() {
 
       <section id="founder" className="founder section-light">
         <div className="founder-intro"><p className="section-index">{founder?.eyebrow || '[ 01 — знакомство ]'}</p><h2>За каждым домом<br />стоит <em>личная ответственность.</em></h2></div>
-        <div className="founder-media"><MediaImage src="/media/founder.jpg" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
+        <div className="founder-media"><MediaImage src="/media/founder.jpg?v=20260726" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
         <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'}</p><p>Сам живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
       </section>
 
