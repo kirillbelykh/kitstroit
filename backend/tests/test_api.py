@@ -24,6 +24,54 @@ async def test_lead_requires_consent_and_is_visible_to_admin(client):
     assert leads.json()[0]["phone"] == "+7 999 123-45-67"
 
 
+async def test_lead_stores_attribution_fields(client):
+    created = await client.post(
+        "/api/leads",
+        json={
+            "name": "Анна",
+            "phone": "+7 999 555-44-33",
+            "project_type": "Дом",
+            "consent": True,
+            "ym_client_id": "1234567890123456789",
+            "yclid": "yclid-test-1",
+            "landing_page": "https://kitstroit.ru/?utm_source=yandex",
+            "referrer": "https://yandex.ru/",
+            "page_url": "https://kitstroit.ru/#lead",
+            "cta": "hero_calculate",
+            "utm_source": "yandex",
+            "utm_medium": "cpc",
+            "utm_campaign": "homes",
+            "utm_content": "banner",
+            "utm_term": "дом под ключ",
+            "first_utm_source": "yandex",
+            "first_utm_medium": "cpc",
+            "first_utm_campaign": "homes",
+            "first_utm_content": "banner",
+            "first_utm_term": "дом под ключ",
+            "first_landing_page": "https://kitstroit.ru/?utm_source=yandex",
+            "first_referrer": "https://yandex.ru/",
+        },
+    )
+    assert created.status_code == 201
+    body = created.json()
+    assert body["utm_source"] == "yandex"
+    assert body["utm_campaign"] == "homes"
+    assert body["yclid"] == "yclid-test-1"
+    assert body["ym_client_id"] == "1234567890123456789"
+    assert body["cta"] == "hero_calculate"
+    assert body["first_utm_source"] == "yandex"
+
+    await login(client)
+    leads = await client.get("/api/admin/leads")
+    assert leads.status_code == 200
+    stored = next(item for item in leads.json() if item["phone"] == "+7 999 555-44-33")
+    assert stored["yclid"] == "yclid-test-1"
+    assert stored["landing_page"] == "https://kitstroit.ru/?utm_source=yandex"
+    assert stored["page_url"] == "https://kitstroit.ru/#lead"
+    assert stored["utm_medium"] == "cpc"
+    assert stored["first_landing_page"] == "https://kitstroit.ru/?utm_source=yandex"
+
+
 async def test_project_admin_crud_controls_public_content(client):
     unauthorized = await client.get("/api/admin/projects")
     assert unauthorized.status_code == 401
@@ -77,6 +125,31 @@ async def test_telegram_notification_escapes_lead_data(monkeypatch):
     assert len(sent) == 2
     assert "&lt;Иван&gt;" in sent[0][1]["text"]
     assert "<b>hello</b>" not in sent[0][1]["text"]
+
+    sent.clear()
+    await telegram.notify_new_lead(
+        "test-token",
+        [1],
+        {
+            "name": "Анна",
+            "phone": "+7 999 000-11-22",
+            "project_type": "Дом",
+            "message": "Хочу смету",
+            "utm_source": "yandex",
+            "utm_campaign": "homes<script>",
+            "yclid": "yclid-42",
+            "ym_client_id": "999",
+            "landing_page": "https://kitstroit.ru/",
+        },
+    )
+    text = sent[0][1]["text"]
+    assert "Атрибуция" in text
+    assert "Источник: yandex" in text
+    assert "Кампания: homes&lt;script&gt;" in text
+    assert "yclid: yclid-42" in text
+    assert "ClientID: 999" in text
+    assert "Landing: https://kitstroit.ru/" in text
+    assert "<script>" not in text
 
 
 async def test_admin_upload_accepts_image_and_rejects_other_types(client, tmp_path, monkeypatch):

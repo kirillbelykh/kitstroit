@@ -1,11 +1,35 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
 import { api } from './api'
+import { setPendingCta, trackCtaClick, trackFaqOpen, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
+
+function onPhoneClick() {
+  trackPhoneClick()
+}
+
+function onTelegramClick() {
+  trackTelegramClick()
+}
+
+function onCtaClick(cta: string) {
+  return () => {
+    setPendingCta(cta)
+    trackCtaClick(cta)
+  }
+}
 
 type ContentSection = { key: string; eyebrow?: string; title?: string; body?: string; cta_label?: string; cta_url?: string; enabled?: boolean }
 type PublicProject = { id?: number; slug?: string; title: string; summary?: string; location?: string; area?: string | number; cover_url?: string; published?: boolean; media?: { url: string }[] }
 type PublicContent = { settings: Record<string, string>; sections: ContentSection[]; projects: PublicProject[]; telegram_username?: string }
 type Project = { title: string; place: string; area: string; status?: string; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
+
+const MEDIA_CACHE_VERSION = '20260726c'
+const withMediaVersion = (url: string) => {
+  if (!url.startsWith('/media/')) return url
+  const join = url.includes('?') ? '&' : '?'
+  return `${url}${join}v=${MEDIA_CACHE_VERSION}`
+}
 
 const fallbackProjects: Project[] = [
   {
@@ -26,16 +50,7 @@ const fallbackProjects: Project[] = [
 ]
 
 const videoReviews = [
-  ['Павлов SKY · обзор дома', '/media/reviews/pavlov-sky-overview.mp4', '/media/projects/pavlov-sky/img-2085.webp'],
-  ['Дом у воды · дерево и свет', '/media/reviews/warm-wood-interior.mp4', '/media/project-lake.jpg'],
-  ['Тихая терраса · мастер-спальня', '/media/reviews/luxury-interior-pan.mp4', '/media/interior-4k.webp'],
-  ['Репино · выход в сад', '/media/reviews/interior-with-terrace.mp4', '/media/project-cabin.jpg'],
-  ['От эскиза к проекту', '/media/reviews/architectural-blueprints.mp4', '/media/project-courtyard.jpg'],
-  ['Сборка каркаса', '/media/reviews/house-construction-team.mp4', '/media/generated/process-frame.webp'],
-  ['Сосновый склон · кухня', '/media/reviews/warm-wood-interior.mp4', '/media/generated/project-interior.webp'],
-  ['Дом у озера · вечер', '/media/reviews/interior-with-terrace.mp4', '/media/hero-evening-4k.webp'],
-  ['Архитектурный надзор', '/media/reviews/architectural-blueprints.mp4', '/media/project-lake.jpg'],
-  ['Передача готового дома', '/media/reviews/minimalist-living-room.mp4', '/media/project-cabin.jpg'],
+  ['Павлов SKY · обзор дома', '/media/reviews/pavlov-sky-overview.mp4?v=1080p60', '/media/projects/pavlov-sky/img-2085.webp'],
 ] as const
 
 const steps = [
@@ -45,9 +60,11 @@ const steps = [
   ['04', 'Передача дома', 'Проверяем системы, устраняем замечания и передаём готовый дом с комплектом документов.', '/media/generated/project-forest.webp'],
 ] as const
 
-const testimonials = [
-  { name: 'Павлов SKY', place: 'Ленинградская область', text: 'Мы боялись не самой стройки, а бесконечных решений и сюрпризов в смете. В KIT всё было разложено по этапам: мы видели ход работ, понимали бюджет и в итоге получили именно тот спокойный дом, который представляли.', image: '/media/projects/pavlov-sky/img-2085.webp' },
-  { name: 'ЖК Familia', place: 'Петровский остров · Санкт-Петербург', text: 'В проекте услышали не только наши пожелания, но и привычки. Где оставить коляску, как зайти с собаками после прогулки, куда падает утренний свет. Из таких деталей и получилось ощущение дома.', image: '/media/projects/familia/img-2402.webp' },
+const advantages = [
+  ['Фиксированная смета', 'Стоимость и состав работ закрепляем в договоре. Без скрытых платежей и внезапных доплат.'],
+  ['Поэтапная оплата', 'Вы оплачиваете выполненные и принятые этапы, а не обещания будущего результата.'],
+  ['Контроль строительства', 'Календарный план, фотоотчёты и акты на скрытые работы — вы видите ход стройки.'],
+  ['Один ответственный подрядчик', 'Один договор, одна команда и личная ответственность до передачи ключей.'],
 ] as const
 
 const faqs = [
@@ -90,7 +107,7 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
     </nav>
     <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
-    <a className="header-phone" href={phoneLink}>{phone}</a>
+    <a className="header-phone" href={phoneLink} onClick={onPhoneClick}>{phone}</a>
   </header>
 }
 
@@ -117,7 +134,14 @@ function ProjectLightbox({ title, media, index, onClose, onMove }: { title: stri
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
+    const previousPosition = document.body.style.position
+    const previousTop = document.body.style.top
+    const previousWidth = document.body.style.width
+    const scrollY = window.scrollY
     document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
     closeRef.current?.focus()
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onCloseRef.current()
@@ -127,43 +151,50 @@ function ProjectLightbox({ title, media, index, onClose, onMove }: { title: stri
     window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = previousOverflow
+      document.body.style.position = previousPosition
+      document.body.style.top = previousTop
+      document.body.style.width = previousWidth
+      window.scrollTo(0, scrollY)
       window.removeEventListener('keydown', onKey)
     }
   }, [])
 
-  return <div
-    className="project-lightbox"
-    role="dialog"
-    aria-modal="true"
-    aria-label={`${title}, просмотр фото`}
-    onClick={onClose}
-    onTouchStart={(event) => {
-      const touch = event.changedTouches[0]
-      touchStart.current = { x: touch.clientX, y: touch.clientY }
-    }}
-    onTouchEnd={(event) => {
-      if (!touchStart.current) return
-      const touch = event.changedTouches[0]
-      const dx = touch.clientX - touchStart.current.x
-      const dy = touch.clientY - touchStart.current.y
-      touchStart.current = null
-      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
-      onMove(dx < 0 ? 1 : -1)
-    }}
-  >
-    <button ref={closeRef} className="project-lightbox-close" aria-label="Закрыть" onClick={onClose}>Закрыть</button>
-    <button className="project-lightbox-nav project-lightbox-prev" aria-label="Предыдущий кадр" onClick={(event) => { event.stopPropagation(); onMove(-1) }}>←</button>
-    <img
-      className="project-lightbox-image"
-      key={media[index]}
-      src={media[index]}
-      alt={`${title}, кадр ${index + 1}`}
-      onClick={(event) => event.stopPropagation()}
-      draggable={false}
-    />
-    <button className="project-lightbox-nav project-lightbox-next" aria-label="Следующий кадр" onClick={(event) => { event.stopPropagation(); onMove(1) }}>→</button>
-    <p className="project-lightbox-meta" onClick={(event) => event.stopPropagation()}>{String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}</p>
-  </div>
+  return createPortal(
+    <div
+      className="project-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${title}, просмотр фото`}
+      onTouchStart={(event) => {
+        const touch = event.changedTouches[0]
+        touchStart.current = { x: touch.clientX, y: touch.clientY }
+      }}
+      onTouchEnd={(event) => {
+        if (!touchStart.current) return
+        const touch = event.changedTouches[0]
+        const dx = touch.clientX - touchStart.current.x
+        const dy = touch.clientY - touchStart.current.y
+        touchStart.current = null
+        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.1) return
+        onMove(dx < 0 ? 1 : -1)
+      }}
+    >
+      <button ref={closeRef} className="project-lightbox-close" type="button" aria-label="Закрыть" onClick={onClose}>×</button>
+      <button className="project-lightbox-nav project-lightbox-prev" type="button" aria-label="Предыдущий кадр" onClick={() => onMove(-1)}>←</button>
+      <div className="project-lightbox-stage">
+        <img
+          className="project-lightbox-image"
+          key={media[index]}
+          src={media[index]}
+          alt={`${title}, кадр ${index + 1}`}
+          draggable={false}
+        />
+      </div>
+      <button className="project-lightbox-nav project-lightbox-next" type="button" aria-label="Следующий кадр" onClick={() => onMove(1)}>→</button>
+      <p className="project-lightbox-meta">{String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}</p>
+    </div>,
+    document.body,
+  )
 }
 
 function ProjectMagazine({ projects }: { projects: Project[] }) {
@@ -171,10 +202,15 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const [activeMedia, setActiveMedia] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const project = projects[activeProject]
-  const selectProject = (index: number) => { setActiveProject(index); setActiveMedia(0); setLightboxOpen(false) }
+  const selectProject = (index: number) => {
+    setActiveProject(index)
+    setActiveMedia(0)
+    setLightboxOpen(false)
+    trackProjectOpen(index)
+  }
   const move = (direction: number) => setActiveMedia((current) => (current + direction + project.media.length) % project.media.length)
   return <section id="projects" className="projects section-ink">
-    <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Архитектура,<br /><em>которую хочется листать.</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
+    <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Представляем<br /><em>наши проекты</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
     <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
       <div className="magazine-media">
@@ -188,7 +224,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
         <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
-        <a className="text-arrow" href="#lead">Обсудить похожий дом <Arrow diagonal /></a>
+        <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
     <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><ProjectPlan variant={project.plan} /></div>
@@ -197,32 +233,50 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
 }
 
 function VideoReviews() {
-  const [expanded, setExpanded] = useState(false)
-  const visible = expanded ? videoReviews : videoReviews.slice(0, 4)
+  const [title, src, poster] = videoReviews[0]
   return <section id="videos" className="videos section-ink">
     <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2></Reveal>
-    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
-    <button className="more-videos" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>{expanded ? 'Свернуть' : 'Больше видео'} <span>{expanded ? '−' : '+'}</span></button>
+    <div className="video-grid video-grid-single"><Reveal className="video-card" delay={0}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} onPlay={(event) => {
+      const el = event.currentTarget
+      if (el.dataset.ymTracked === '1') return
+      el.dataset.ymTracked = '1'
+      trackVideoStart(title)
+    }} /><div><span>01</span><h3>{title}</h3></div></Reveal></div>
   </section>
+}
+
+function ProcessTitle({ title }: { title?: string }) {
+  if (!title) return <>Система,<br />а не <em>импровизация.</em></>
+  const match = title.match(/^(.*?)\s*,?\s*а не\s+(.+)$/i)
+  if (!match) return <>{title}</>
+  const lead = match[1].replace(/,$/, '').trim()
+  const accent = match[2].replace(/\.$/, '').trim()
+  return <>{lead},<br />а не <em>{accent}.</em></>
 }
 
 function ProcessSection({ eyebrow, title, body }: { eyebrow?: string; title?: string; body?: string }) {
   return <section id="process" className="process section-light">
-    <Reveal className="section-head"><p className="section-index">{eyebrow || '[ 04 — процесс ]'}</p><h2>{title || <>Путь к дому.<br /><em>Без неизвестности.</em></>}</h2><p>{body || 'Вы понимаете, что происходит сегодня, зачем это делается и какой следующий шаг.'}</p></Reveal>
-    <div className="process-cards">{steps.map(([number, stepTitle, text, media], index) => <Reveal className="process-card" key={number} delay={index * 60}>
-      {media.endsWith('.mp4') ? <video src={media} muted autoPlay loop playsInline aria-hidden="true" /> : <img src={media} alt="" loading="lazy" />}
-      <div><span>{number}</span><h3>{stepTitle}</h3><p>{text}</p></div>
-    </Reveal>)}</div>
-  </section>
-}
-
-function Testimonials() {
-  const [active, setActive] = useState(0)
-  const review = testimonials[active]
-  const move = (direction: number) => setActive((active + direction + testimonials.length) % testimonials.length)
-  return <section className="testimonials section-light">
-    <Reveal className="section-head"><p className="section-index">[ 05 — отзывы ]</p><h2>Дом глазами<br /><em>тех, кто уже живёт.</em></h2></Reveal>
-    <div className="testimonial-slide"><MediaImage src={review.image} alt={review.place} /><div className="testimonial-copy"><span className="quote-mark">“</span><blockquote>{review.text}</blockquote><p><strong>{review.name}</strong>{review.place}</p><div><button aria-label="Предыдущий отзыв" onClick={() => move(-1)}>←</button><span>0{active + 1} / 0{testimonials.length}</span><button aria-label="Следующий отзыв" onClick={() => move(1)}>→</button></div></div></div>
+    <Reveal className="section-head">
+      <p className="section-index">{eyebrow || '[ 04 — процесс ]'}</p>
+      <h2><ProcessTitle title={title} /></h2>
+      <p>{body || 'Участок и задача → проект и смета → команда и материалы → строительство и сдача. Каждый этап имеет результат и точку контроля.'}</p>
+    </Reveal>
+    <div className="process-cards">
+      {steps.map(([number, stepTitle, text, media], index) => (
+        <Reveal className="process-card" key={number} delay={index * 70}>
+          <div className="process-media">
+            {media.endsWith('.mp4')
+              ? <video src={media} muted autoPlay loop playsInline aria-hidden="true" />
+              : <img src={media} alt="" loading="lazy" />}
+          </div>
+          <div className="process-copy">
+            <span className="process-index">{number}</span>
+            <h3>{stepTitle}</h3>
+            <p>{text}</p>
+          </div>
+        </Reveal>
+      ))}
+    </div>
   </section>
 }
 
@@ -251,15 +305,17 @@ function App() {
   const guarantee = section('guarantee')
   const lead = section('lead')
   const contacts = section('contacts')
-  const publicProjects = content?.projects.filter((project) => project.published !== false) ?? []
+  const publicProjects = content?.projects.filter((project) => project.published !== false && project.slug !== 'familia') ?? []
   const projects = useMemo<Project[]>(() => publicProjects.length ? publicProjects.map((project, index) => {
     const fallback = fallbackProjects[index % fallbackProjects.length]
-    const gallery = [project.cover_url, ...(project.media?.map((item) => item.url) || [])].filter((url): url is string => Boolean(url))
+    const gallery = [project.cover_url, ...(project.media?.map((item) => item.url) || [])]
+      .filter((url): url is string => Boolean(url))
+      .map(withMediaVersion)
     return {
       title: project.title,
       place: project.location || 'Санкт-Петербург и ЛО',
       area: project.area ? `${project.area} м²` : '—',
-      status: ['pavlov-sky', 'familia', 'dom-bezobrazova-repino'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
+      status: ['pavlov-sky', 'dom-bezobrazova-repino'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
       summary: project.summary || fallback.summary,
       media: [...new Set(gallery.length ? gallery : fallback.media)],
       plan: fallback.plan,
@@ -271,40 +327,47 @@ function App() {
   const telegramLink = /^https?:\/\//.test(telegram) ? telegram : `https://t.me/${telegram.replace(/^@/, '')}`
   const telegramLabel = /^https?:\/\//.test(telegram) ? telegram : `@${telegram.replace(/^@/, '')}`
   const email = content?.settings.email || 'info@kitstroit.ru'
+  const discussCta = hero?.cta_label || 'Обсудить строительство'
+  const founderBody = founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей и после неё. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'
   return <div className="site" id="top">
     <a className="skip-link" href="#main-content">Перейти к содержанию</a>
     <Header phone={phone} phoneLink={phoneLink} />
     <main id="main-content">
       <section ref={heroRef} className="hero" aria-label="Строительство домов под ключ">
-        <div className="hero-media" aria-hidden="true"><div className="hero-slide hero-slide-one" /><div className="hero-slide hero-slide-two" /><div className="hero-slide hero-slide-three" /></div>
+        <div className="hero-media" aria-hidden="true">
+          <div className="hero-slide hero-slide-one" />
+          <div className="hero-slide hero-slide-two" />
+          <div className="hero-slide hero-slide-three" />
+          <div className="hero-slide hero-slide-four hero-slide-mobile" />
+          <div className="hero-slide hero-slide-five hero-slide-mobile" />
+        </div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1 className="hero-title">{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
       <section id="founder" className="founder section-light">
         <div className="founder-intro"><p className="section-index">{founder?.eyebrow || '[ 01 — знакомство ]'}</p><h2>За каждым домом<br />стоит <em>личная ответственность.</em></h2></div>
         <div className="founder-media"><MediaImage src="/media/founder.jpg?v=20260726" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
-        <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'}</p><p>Сам живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
+        <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founderBody}</p><p>Отец четверых детей, живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'} onClick={onCtaClick('founder_discuss')}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
       </section>
 
       <ProjectMagazine projects={projects} />
       <VideoReviews />
       <ProcessSection eyebrow={process?.eyebrow} title={process?.title} body={process?.body} />
-      <Testimonials />
 
-      <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 06 — в цифрах ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{[['13', 'лет опыта'], ['120+', 'завершённых объектов'], ['10', 'лет письменной гарантии'], ['1', 'ответственный подрядчик']].map(([value, label], i) => <Reveal key={value + label} className="metric" delay={i * 60}><strong>{value}</strong><span>{label}</span></Reveal>)}</div></section>
+      <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 05 — преимущества ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{advantages.map(([title, text], i) => <Reveal key={title} className={`metric${title === 'Поэтапная оплата' ? ' metric-accent' : ''}`} delay={i * 60}><span className="metric-index">0{i + 1}</span><strong>{title}</strong><p>{text}</p></Reveal>)}</div></section>
 
-      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 07 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
+      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 06 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
-      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 08 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
+      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 07 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details onToggle={(event) => { const el = event.currentTarget; if (el.open) trackFaqOpen(question, i + 1) }}><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
 
-      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 09 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
+      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
-      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer"><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
+      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
     <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><a href="/privacy">Политика конфиденциальности</a></footer>
-    <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink}>Позвонить</a><a href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
+    <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink} onClick={onPhoneClick}>Позвонить</a><a href={hero?.cta_url || '#lead'} onClick={onCtaClick('mobile_calculate')}>{discussCta} <Arrow diagonal /></a></div>
   </div>
 }
 

@@ -3,7 +3,29 @@ import { api } from '../api'
 import './admin.css'
 
 type View = 'leads' | 'projects' | 'texts' | 'telegram' | 'settings'
-type Lead = { id: number; name: string; phone: string; project_type?: string; message?: string; status: 'new' | 'in_progress' | 'won' | 'lost'; created_at: string }
+type Lead = {
+  id: number
+  name: string
+  phone: string
+  project_type?: string
+  message?: string
+  status: 'new' | 'in_progress' | 'won' | 'lost'
+  created_at: string
+  utm_source?: string | null
+  utm_medium?: string | null
+  utm_campaign?: string | null
+  utm_content?: string | null
+  utm_term?: string | null
+  yclid?: string | null
+  ym_client_id?: string | null
+  cta?: string | null
+  landing_page?: string | null
+  referrer?: string | null
+  page_url?: string | null
+  first_utm_source?: string | null
+  first_utm_campaign?: string | null
+  first_landing_page?: string | null
+}
 type Project = { id: number; slug: string; title: string; summary: string; location: string; area: string | number; year: string | number; cover_url: string; sort_order: number; published: boolean }
 type TextSection = { id: number; key: string; eyebrow: string; title: string; body: string; cta_label: string; cta_url: string; sort_order: number; enabled: boolean }
 type Setting = { id: number; key: string; value: string; public: boolean }
@@ -29,6 +51,36 @@ function Login({ onLogin }: { onLogin: () => void }) {
   return <main className="admin-login"><form onSubmit={submit}><a className="admin-logo" href="/">KIT<span>admin</span></a><div><label>Логин<input name="username" autoComplete="username" required autoFocus /></label><label>Пароль<input name="password" type="password" autoComplete="current-password" required /></label></div>{error && <p role="alert">{error}</p>}<button disabled={busy}>{busy ? 'Проверяем…' : 'Войти →'}</button><a href="/">← Вернуться на сайт</a></form></main>
 }
 
+function leadAttributionSummary(lead: Lead) {
+  const parts = [
+    lead.utm_source || null,
+    lead.utm_campaign || null,
+    lead.yclid ? `yclid:${lead.yclid}` : null,
+    lead.ym_client_id ? `cid:${lead.ym_client_id}` : null,
+    lead.cta ? `cta:${lead.cta}` : null,
+  ].filter(Boolean)
+  return parts.length ? parts.join(' · ') : ''
+}
+
+function leadAttributionDetails(lead: Lead) {
+  return [
+    ['utm_source', lead.utm_source],
+    ['utm_medium', lead.utm_medium],
+    ['utm_campaign', lead.utm_campaign],
+    ['utm_content', lead.utm_content],
+    ['utm_term', lead.utm_term],
+    ['yclid', lead.yclid],
+    ['ym_client_id', lead.ym_client_id],
+    ['cta', lead.cta],
+    ['landing_page', lead.landing_page],
+    ['referrer', lead.referrer],
+    ['page_url', lead.page_url],
+    ['first_utm_source', lead.first_utm_source],
+    ['first_utm_campaign', lead.first_utm_campaign],
+    ['first_landing_page', lead.first_landing_page],
+  ].filter(([, value]) => Boolean(value))
+}
+
 function Leads() {
   const [items, setItems] = useState<Lead[]>([])
   const [error, setError] = useState('')
@@ -36,7 +88,11 @@ function Leads() {
   useEffect(() => { load() }, [])
   async function change(id: number, status: Lead['status']) { await api(`/admin/leads/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }); load() }
   async function remove(id: number) { if (!confirm('Удалить заявку?')) return; await api(`/admin/leads/${id}`, { method: 'DELETE' }); load() }
-  return <section className="admin-section"><SectionHead title="Заявки" note={`${items.length} всего`} /><div className="admin-table-wrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Проект</th><th>Сообщение</th><th>Статус</th><th /></tr></thead><tbody>{items.map((lead) => <tr key={lead.id}><td>{new Date(lead.created_at).toLocaleString('ru-RU')}</td><td><strong>{lead.name}</strong><a href={`tel:${lead.phone}`}>{lead.phone}</a></td><td>{lead.project_type || '—'}</td><td className="admin-message">{lead.message || '—'}</td><td><select value={lead.status} onChange={(e) => change(lead.id, e.target.value as Lead['status'])}><option value="new">Новая</option><option value="in_progress">В работе</option><option value="won">Успех</option><option value="lost">Закрыта</option></select></td><td><button className="icon-button" onClick={() => remove(lead.id)} aria-label="Удалить заявку">×</button></td></tr>)}</tbody></table>{!items.length && !error && <Empty text="Заявок пока нет" />}{error && <p className="admin-error">{error}</p>}</div></section>
+  return <section className="admin-section"><SectionHead title="Заявки" note={`${items.length} всего`} /><div className="admin-table-wrap"><table><thead><tr><th>Дата</th><th>Клиент</th><th>Проект</th><th>Сообщение</th><th>Статус</th><th /></tr></thead><tbody>{items.map((lead) => {
+    const summary = leadAttributionSummary(lead)
+    const details = leadAttributionDetails(lead)
+    return <tr key={lead.id}><td>{new Date(lead.created_at).toLocaleString('ru-RU')}</td><td><strong>{lead.name}</strong><a href={`tel:${lead.phone}`}>{lead.phone}</a>{summary && <details className="admin-attribution"><summary>{summary}</summary>{details.length > 0 && <dl>{details.map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{value}</dd></div>)}</dl>}</details>}</td><td>{lead.project_type || '—'}</td><td className="admin-message">{lead.message || '—'}</td><td><select value={lead.status} onChange={(e) => change(lead.id, e.target.value as Lead['status'])}><option value="new">Новая</option><option value="in_progress">В работе</option><option value="won">Успех</option><option value="lost">Закрыта</option></select></td><td><button className="icon-button" onClick={() => remove(lead.id)} aria-label="Удалить заявку">×</button></td></tr>
+  })}</tbody></table>{!items.length && !error && <Empty text="Заявок пока нет" />}{error && <p className="admin-error">{error}</p>}</div></section>
 }
 
 function Projects() {

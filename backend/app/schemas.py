@@ -25,11 +25,59 @@ class LeadCreate(BaseModel):
     message: str | None = Field(default=None, max_length=3000)
     consent: Literal[True]
     website: Literal[""] = ""
+    ym_client_id: str | None = Field(default=None, max_length=64)
+    yclid: str | None = Field(default=None, max_length=128)
+    landing_page: str | None = Field(default=None, max_length=500)
+    referrer: str | None = Field(default=None, max_length=500)
+    page_url: str | None = Field(default=None, max_length=500)
+    cta: str | None = Field(default=None, max_length=120)
+    utm_source: str | None = Field(default=None, max_length=200)
+    utm_medium: str | None = Field(default=None, max_length=200)
+    utm_campaign: str | None = Field(default=None, max_length=200)
+    utm_content: str | None = Field(default=None, max_length=200)
+    utm_term: str | None = Field(default=None, max_length=200)
+    first_utm_source: str | None = Field(default=None, max_length=200)
+    first_utm_medium: str | None = Field(default=None, max_length=200)
+    first_utm_campaign: str | None = Field(default=None, max_length=200)
+    first_utm_content: str | None = Field(default=None, max_length=200)
+    first_utm_term: str | None = Field(default=None, max_length=200)
+    first_landing_page: str | None = Field(default=None, max_length=500)
+    first_referrer: str | None = Field(default=None, max_length=500)
 
-    @field_validator("name", "phone", "project_type", "message", mode="before")
+    @field_validator("name", "phone", mode="before")
     @classmethod
-    def strip_strings(cls, value: Any) -> Any:
+    def strip_required(cls, value: Any) -> Any:
         return value.strip() if isinstance(value, str) else value
+
+    @field_validator(
+        "project_type",
+        "message",
+        "ym_client_id",
+        "yclid",
+        "landing_page",
+        "referrer",
+        "page_url",
+        "cta",
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_content",
+        "utm_term",
+        "first_utm_source",
+        "first_utm_medium",
+        "first_utm_campaign",
+        "first_utm_content",
+        "first_utm_term",
+        "first_landing_page",
+        "first_referrer",
+        mode="before",
+    )
+    @classmethod
+    def strip_optional(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            value = value.strip()
+            return value or None
+        return value
 
     @field_validator("phone")
     @classmethod
@@ -51,6 +99,24 @@ class LeadOut(ApiModel):
     message: str | None
     status: str
     consent: bool
+    ym_client_id: str | None = None
+    yclid: str | None = None
+    landing_page: str | None = None
+    referrer: str | None = None
+    page_url: str | None = None
+    cta: str | None = None
+    utm_source: str | None = None
+    utm_medium: str | None = None
+    utm_campaign: str | None = None
+    utm_content: str | None = None
+    utm_term: str | None = None
+    first_utm_source: str | None = None
+    first_utm_medium: str | None = None
+    first_utm_campaign: str | None = None
+    first_utm_content: str | None = None
+    first_utm_term: str | None = None
+    first_landing_page: str | None = None
+    first_referrer: str | None = None
     created_at: datetime
     updated_at: datetime
 

@@ -1,8 +1,16 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { sendLead } from './api'
+import { awaitYmClientId, getLeadAttribution, trackFormError, trackLeadStart, trackLeadSuccess } from './analytics'
 
 export const PHONE_DISPLAY = '8 (965) 013-03-33'
 export const PHONE_LINK = 'tel:+79650130333'
+
+const STAGE_OPTIONS = [
+  'Есть участок',
+  'Выбираю участок',
+  'Есть готовый проект',
+  'Нужен проект с нуля',
+] as const
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
   return <span aria-hidden="true" className={diagonal ? 'arrow arrow-diagonal' : 'arrow'}>→</span>
@@ -41,43 +49,58 @@ export function Reveal({ children, className = '', delay = 0 }: { children: Reac
 export function LeadForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [error, setError] = useState('')
+  const started = useRef(false)
+  const submitLock = useRef(false)
+
+  function markStart() {
+    if (started.current) return
+    started.current = true
+    trackLeadStart()
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitLock.current || status === 'sending' || status === 'done') return
+    submitLock.current = true
     const form = event.currentTarget
     const data = new FormData(form)
     setStatus('sending')
     setError('')
     try {
+      await awaitYmClientId(1000)
       await sendLead({
         name: String(data.get('name') ?? ''),
         phone: String(data.get('phone') ?? ''),
-        project_type: String(data.get('project_type') ?? 'Строительство дома'),
+        project_type: String(data.get('project_type') ?? STAGE_OPTIONS[0]),
         message: String(data.get('message') ?? ''),
         consent: true,
+        ...getLeadAttribution(),
       })
+      trackLeadSuccess()
       form.reset()
       setStatus('done')
     } catch (cause) {
+      trackFormError()
       setError(cause instanceof Error ? cause.message : 'Попробуйте ещё раз')
       setStatus('error')
+      submitLock.current = false
     }
   }
 
   if (status === 'done') {
-    return <div className="form-success" role="status"><span>Заявка принята</span><p>Мы позвоним в течение 30 минут.</p></div>
+    return <div className="form-success" role="status"><span>Спасибо.</span><p>Заявка сохранена — мы свяжемся с вами в рабочее время.</p></div>
   }
 
   return (
-    <form className={compact ? 'lead-form compact' : 'lead-form'} onSubmit={submit}>
+    <form className={compact ? 'lead-form compact' : 'lead-form'} onSubmit={submit} onFocus={markStart}>
       <label><span>01 / Имя</span><input name="name" required autoComplete="name" placeholder="Как к вам обращаться" /></label>
       <label><span>02 / Телефон</span><input name="phone" required type="tel" autoComplete="tel" placeholder="+7 ___ ___ __ __" /></label>
       {!compact && <>
-        <label><span>03 / Тип объекта</span><select name="project_type" defaultValue="Строительство дома"><option>Строительство дома</option><option>Есть готовый проект</option><option>Нужен проект с нуля</option></select></label>
+        <label><span>03 / На каком этапе вы находитесь?</span><select name="project_type" defaultValue={STAGE_OPTIONS[0]}>{STAGE_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
         <label className="wide"><span>04 / О проекте</span><textarea name="message" rows={3} placeholder="Участок, площадь, пожелания — если уже известны" /></label>
       </>}
       <div className="form-action wide">
-        <button className="button button-solid" disabled={status === 'sending'}>{status === 'sending' ? 'Отправляем…' : 'Получить расчёт'} <Arrow diagonal /></button>
+        <button className="button button-solid" disabled={status === 'sending'}>{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'} <Arrow diagonal /></button>
         <label className="consent"><input type="checkbox" required /> <span>Согласен с <a href="/privacy" target="_blank">обработкой персональных данных</a></span></label>
       </div>
       {status === 'error' && <p className="form-error wide" role="alert">{error}</p>}
