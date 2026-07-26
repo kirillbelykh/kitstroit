@@ -1,10 +1,25 @@
-export { captureAttributionFromLocation, getLeadAttribution, setPendingCta, setYmClientId } from './attribution'
-export type { LeadAttribution } from './attribution'
+export {
+  applyCapture,
+  buildLeadAttribution,
+  captureAttributionFromLocation,
+  getLeadAttribution,
+  getStoredYmClientId,
+  hasTrafficParams,
+  pickParams,
+  readStore,
+  sanitizeStoredAttribution,
+  setPendingCta,
+  setYmClientId,
+  writeStore,
+} from './attribution'
+export type { AttributionStorage, LeadAttribution, StoredAttribution, TouchAttribution } from './attribution'
 export {
   YM_COUNTER_ID,
+  awaitYmClientId,
   initMetrika,
   reachGoal,
   trackCtaClick,
+  trackFaqOpen,
   trackFormError,
   trackLeadStart,
   trackLeadSuccess,

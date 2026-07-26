@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
 import { api } from './api'
-import { setPendingCta, trackCtaClick, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
+import { setPendingCta, trackCtaClick, trackFaqOpen, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
 
 function onPhoneClick() {
   trackPhoneClick()
@@ -323,7 +323,7 @@ function App() {
 
       <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 07 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
-      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 08 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
+      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 08 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details onToggle={(event) => { const el = event.currentTarget; if (el.open) trackFaqOpen(question, i + 1) }}><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
 
       <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 09 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 

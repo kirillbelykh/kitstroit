@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { sendLead } from './api'
-import { getLeadAttribution, trackFormError, trackLeadStart, trackLeadSuccess } from './analytics'
+import { awaitYmClientId, getLeadAttribution, trackFormError, trackLeadStart, trackLeadSuccess } from './analytics'
 
 export const PHONE_DISPLAY = '8 (965) 013-03-33'
 export const PHONE_LINK = 'tel:+79650130333'
@@ -43,6 +43,7 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [error, setError] = useState('')
   const started = useRef(false)
+  const submitLock = useRef(false)
 
   function markStart() {
     if (started.current) return
@@ -52,11 +53,14 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (submitLock.current || status === 'sending' || status === 'done') return
+    submitLock.current = true
     const form = event.currentTarget
     const data = new FormData(form)
     setStatus('sending')
     setError('')
     try {
+      await awaitYmClientId(1000)
       await sendLead({
         name: String(data.get('name') ?? ''),
         phone: String(data.get('phone') ?? ''),
@@ -72,6 +76,7 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       trackFormError()
       setError(cause instanceof Error ? cause.message : 'Попробуйте ещё раз')
       setStatus('error')
+      submitLock.current = false
     }
   }
 

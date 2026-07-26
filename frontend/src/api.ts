@@ -6,7 +6,7 @@ export type LeadPayload = {
   project_type: string
   message?: string
   consent: true
-  ym_client_id?: string
+  ym_client_id?: string | null
   yclid?: string
   landing_page?: string
   referrer?: string
