@@ -35,4 +35,4 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
     assert all(published for _, _, published in projects)
     assert pavlov_media == 29
     assert familia_media == 17
-    assert bezobrazov_media == 21
+    assert bezobrazov_media == 26
