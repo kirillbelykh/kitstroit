@@ -73,7 +73,7 @@ SECTIONS = [
 SETTINGS = [
     {"key": "phone", "value": "8 (965) 013-03-33"},
     {"key": "phone_href", "value": "tel:+79650130333"},
-    {"key": "telegram", "value": "@kit_comfort"},
+    {"key": "telegram", "value": "@kitstroit"},
     {"key": "email", "value": "info@kitstroit.ru"},
     {"key": "work_hours", "value": "Ежедневно · 09:00–21:00"},
     {"key": "region", "value": "Санкт-Петербург и Ленинградская область"},

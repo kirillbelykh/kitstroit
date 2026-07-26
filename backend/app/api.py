@@ -77,12 +77,13 @@ async def public_content(session: Session) -> PublicContent:
         (await session.scalars(select(TextSection).where(TextSection.enabled.is_(True)).order_by(TextSection.sort_order, TextSection.id))).all()
     )
     settings_rows = (await session.scalars(select(SiteSetting).where(SiteSetting.public.is_(True)))).all()
-    telegram = await session.get(TelegramSetting, 1)
+    settings = {row.key: row.value for row in settings_rows}
+    # Public client contact from site_settings.telegram — not the private lead bot username.
     return PublicContent(
-        settings={row.key: row.value for row in settings_rows},
+        settings=settings,
         sections=sections,
         projects=projects,
-        telegram_username=telegram.bot_username if telegram and telegram.enabled else "",
+        telegram_username=settings.get("telegram", ""),
     )
 
 
