@@ -61,15 +61,16 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
     assert section_keys == {"hero", "proof", "process", "guarantee", "founder", "lead"}
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
     assert len(projects) == 6
-    assert all(published for _, _, published in projects)
+    assert all(published for slug, _, published in projects if slug != "familia")
+    assert any(slug == "familia" and not published for slug, _, published in projects)
     assert pavlov_media == 29
     assert familia_media == 17
-    assert bezobrazov_media == 26
+    assert bezobrazov_media == 25
     assert ATTRIBUTION_COLUMNS.issubset(lead_columns)
 
 
-def test_alembic_0009_downgrade_and_reupgrade_on_tmp_sqlite(tmp_path, monkeypatch):
-    """0009 is additive nullable-only: columns appear on upgrade and disappear on downgrade."""
+def test_alembic_0012_downgrade_and_reupgrade_on_tmp_sqlite(tmp_path, monkeypatch):
+    """0012 is additive nullable-only: columns appear on upgrade and disappear on downgrade."""
     database = tmp_path / "migration-roundtrip.db"
     monkeypatch.setenv("DATABASE_URL", f"sqlite+aiosqlite:///{database}")
     get_settings.cache_clear()
@@ -78,7 +79,7 @@ def test_alembic_0009_downgrade_and_reupgrade_on_tmp_sqlite(tmp_path, monkeypatc
     command.upgrade(config, "head")
     assert ATTRIBUTION_COLUMNS.issubset(_lead_columns(database))
 
-    command.downgrade(config, "0008")
+    command.downgrade(config, "0011")
     after_down = _lead_columns(database)
     assert ATTRIBUTION_COLUMNS.isdisjoint(after_down)
 

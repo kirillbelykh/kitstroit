@@ -1,15 +1,15 @@
 """Add lead attribution columns for UTM / Metrika.
 
-Revision ID: 0009
-Revises: 0008
+Revision ID: 0012
+Revises: 0011
 """
 
 from alembic import op
 import sqlalchemy as sa
 
 
-revision = "0009"
-down_revision = "0008"
+revision = "0012"
+down_revision = "0011"
 branch_labels = None
 depends_on = None
 

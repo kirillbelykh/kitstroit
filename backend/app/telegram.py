@@ -19,7 +19,7 @@ async def notify_new_lead(token: str, chat_ids: list[int], lead: dict) -> None:
         "<b>Новая заявка с kitstroit.ru</b>",
         f"Имя: {html.escape(str(lead.get('name') or ''))}",
         f"Телефон: {html.escape(str(lead.get('phone') or ''))}",
-        f"Тип проекта: {html.escape(str(lead.get('project_type') or '—'))}",
+        f"Этап: {html.escape(str(lead.get('project_type') or '—'))}",
         f"Сообщение: {html.escape(str(lead.get('message') or '—'))}",
     ]
     attribution = [
