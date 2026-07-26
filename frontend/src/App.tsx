@@ -323,7 +323,7 @@ function App() {
   }) : fallbackProjects, [publicProjects])
   const phone = content?.settings.phone || content?.settings.phone_display || PHONE_DISPLAY
   const phoneLink = content?.settings.phone_href || `tel:${phone.replace(/\D/g, '').replace(/^8/, '+7')}` || PHONE_LINK
-  const telegram = content?.telegram_username || content?.settings.telegram || '@kit_comfort'
+  const telegram = content?.settings.telegram || content?.telegram_username || '@kitstroit'
   const telegramLink = /^https?:\/\//.test(telegram) ? telegram : `https://t.me/${telegram.replace(/^@/, '')}`
   const telegramLabel = /^https?:\/\//.test(telegram) ? telegram : `@${telegram.replace(/^@/, '')}`
   const email = content?.settings.email || 'info@kitstroit.ru'
