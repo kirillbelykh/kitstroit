@@ -88,6 +88,7 @@ export function initMetrika() {
   ensureYmStub()
   injectTagScript()
   window.ym?.(YM_COUNTER_ID, 'init', {
+    defer: true,
     clickmap: true,
     trackLinks: true,
     accurateTrackBounce: true,
