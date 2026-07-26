@@ -28,6 +28,9 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
             "SELECT COUNT(*) FROM project_media "
             "WHERE project_id = (SELECT id FROM projects WHERE slug = 'dom-bezobrazova-repino')"
         ).fetchone()[0]
+        lead_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(leads)")
+        }
 
     assert section_keys == {"hero", "proof", "process", "guarantee", "founder", "lead"}
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
@@ -36,3 +39,11 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
     assert pavlov_media == 29
     assert familia_media == 17
     assert bezobrazov_media == 26
+    assert {
+        "ym_client_id",
+        "yclid",
+        "landing_page",
+        "utm_source",
+        "first_utm_source",
+        "first_landing_page",
+    }.issubset(lead_columns)

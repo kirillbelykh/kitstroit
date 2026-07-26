@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { sendLead } from './api'
+import { getLeadAttribution, trackFormError, trackLeadStart, trackLeadSuccess } from './analytics'
 
 export const PHONE_DISPLAY = '8 (965) 013-03-33'
 export const PHONE_LINK = 'tel:+79650130333'
@@ -41,6 +42,13 @@ export function Reveal({ children, className = '', delay = 0 }: { children: Reac
 export function LeadForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [error, setError] = useState('')
+  const started = useRef(false)
+
+  function markStart() {
+    if (started.current) return
+    started.current = true
+    trackLeadStart()
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -55,10 +63,13 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
         project_type: String(data.get('project_type') ?? 'Строительство дома'),
         message: String(data.get('message') ?? ''),
         consent: true,
+        ...getLeadAttribution(),
       })
+      trackLeadSuccess()
       form.reset()
       setStatus('done')
     } catch (cause) {
+      trackFormError()
       setError(cause instanceof Error ? cause.message : 'Попробуйте ещё раз')
       setStatus('error')
     }
@@ -69,7 +80,7 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <form className={compact ? 'lead-form compact' : 'lead-form'} onSubmit={submit}>
+    <form className={compact ? 'lead-form compact' : 'lead-form'} onSubmit={submit} onFocus={markStart}>
       <label><span>01 / Имя</span><input name="name" required autoComplete="name" placeholder="Как к вам обращаться" /></label>
       <label><span>02 / Телефон</span><input name="phone" required type="tel" autoComplete="tel" placeholder="+7 ___ ___ __ __" /></label>
       {!compact && <>

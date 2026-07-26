@@ -1,6 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
 import { api } from './api'
+import { setPendingCta, trackCtaClick, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
+
+function onPhoneClick() {
+  trackPhoneClick()
+}
+
+function onTelegramClick() {
+  trackTelegramClick()
+}
+
+function onCtaClick(cta: string) {
+  return () => {
+    setPendingCta(cta)
+    trackCtaClick(cta)
+  }
+}
 
 type ContentSection = { key: string; eyebrow?: string; title?: string; body?: string; cta_label?: string; cta_url?: string; enabled?: boolean }
 type PublicProject = { id?: number; slug?: string; title: string; summary?: string; location?: string; area?: string | number; cover_url?: string; published?: boolean; media?: { url: string }[] }
@@ -90,7 +106,7 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
     </nav>
     <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
-    <a className="header-phone" href={phoneLink}>{phone}</a>
+    <a className="header-phone" href={phoneLink} onClick={onPhoneClick}>{phone}</a>
   </header>
 }
 
@@ -171,7 +187,12 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const [activeMedia, setActiveMedia] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const project = projects[activeProject]
-  const selectProject = (index: number) => { setActiveProject(index); setActiveMedia(0); setLightboxOpen(false) }
+  const selectProject = (index: number) => {
+    setActiveProject(index)
+    setActiveMedia(0)
+    setLightboxOpen(false)
+    trackProjectOpen(index)
+  }
   const move = (direction: number) => setActiveMedia((current) => (current + direction + project.media.length) % project.media.length)
   return <section id="projects" className="projects section-ink">
     <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Архитектура,<br /><em>которую хочется листать.</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
@@ -188,7 +209,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
         <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
-        <a className="text-arrow" href="#lead">Обсудить похожий дом <Arrow diagonal /></a>
+        <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
     <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><ProjectPlan variant={project.plan} /></div>
@@ -201,7 +222,12 @@ function VideoReviews() {
   const visible = expanded ? videoReviews : videoReviews.slice(0, 4)
   return <section id="videos" className="videos section-ink">
     <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2></Reveal>
-    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
+    <div className="video-grid">{visible.map(([title, src, poster], index) => <Reveal className="video-card" key={`${title}-${index}`} delay={(index % 4) * 60}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} onPlay={(event) => {
+      const el = event.currentTarget
+      if (el.dataset.ymTracked === '1') return
+      el.dataset.ymTracked = '1'
+      trackVideoStart(title)
+    }} /><div><span>{String(index + 1).padStart(2, '0')}</span><h3>{title}</h3></div></Reveal>)}</div>
     <button className="more-videos" onClick={() => setExpanded(!expanded)} aria-expanded={expanded}>{expanded ? 'Свернуть' : 'Больше видео'} <span>{expanded ? '−' : '+'}</span></button>
   </section>
 }
@@ -278,14 +304,14 @@ function App() {
       <section ref={heroRef} className="hero" aria-label="Строительство домов под ключ">
         <div className="hero-media" aria-hidden="true"><div className="hero-slide hero-slide-one" /><div className="hero-slide hero-slide-two" /><div className="hero-slide hero-slide-three" /></div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1>{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{hero?.cta_label || 'Рассчитать стоимость'} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
       <section id="founder" className="founder section-light">
         <div className="founder-intro"><p className="section-index">{founder?.eyebrow || '[ 01 — знакомство ]'}</p><h2>За каждым домом<br />стоит <em>личная ответственность.</em></h2></div>
         <div className="founder-media"><MediaImage src="/media/founder.jpg?v=20260726" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
-        <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'}</p><p>Сам живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
+        <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'}</p><p>Сам живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'} onClick={onCtaClick('founder_discuss')}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
       </section>
 
       <ProjectMagazine projects={projects} />
@@ -301,10 +327,10 @@ function App() {
 
       <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 09 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
-      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer"><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
+      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
     <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><a href="/privacy">Политика конфиденциальности</a></footer>
-    <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink}>Позвонить</a><a href={hero?.cta_url || '#lead'}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
+    <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink} onClick={onPhoneClick}>Позвонить</a><a href={hero?.cta_url || '#lead'} onClick={onCtaClick('mobile_calculate')}>{hero?.cta_label || 'Рассчитать дом'} <Arrow diagonal /></a></div>
   </div>
 }
 
