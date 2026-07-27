@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 56">
+  <!-- Three K|I|T tiles with letter cutouts — readable at nav size -->
+  <path fill="#11120f" fill-rule="evenodd" d="
+    M8 2h40a6 6 0 0 1 6 6v40a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6V8a6 6 0 0 1 6-6zm6 10h10v14.2L34.8 12H44L30.2 29.5 44 44H34.6L24 32.2V44H14V12z
+    M60 2h40a6 6 0 0 1 6 6v40a6 6 0 0 1-6 6H60a6 6 0 0 1-6-6V8a6 6 0 0 1 6-6zm12 10h10v32H72V12z
+    M112 2h40a6 6 0 0 1 6 6v40a6 6 0 0 1-6 6h-40a6 6 0 0 1-6-6V8a6 6 0 0 1 6-6zm6 10h26v9h-9.5V44h-10V21H118V12z
+  "/>
+</svg>
