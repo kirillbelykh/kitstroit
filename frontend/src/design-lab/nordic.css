@@ -1,0 +1,252 @@
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap');
+
+.nordic {
+  --nd-ink: #2a2926;
+  --nd-paper: #f7f4ee;
+  --nd-bone: #efebe3;
+  --nd-line: rgba(42, 41, 38, 0.12);
+  --nd-wood: #8b7355;
+  --nd-mute: #6f6a62;
+  min-height: 100svh;
+  color: var(--nd-ink);
+  background: var(--nd-paper);
+  font-family: Karla, 'Segoe UI', sans-serif;
+}
+
+.nordic a {
+  color: inherit;
+}
+
+.nordic__pad {
+  padding-inline: clamp(1.1rem, 5vw, 4rem);
+}
+
+.nordic__hero {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+  min-height: min(88svh, 50rem);
+  padding-block: 2.5rem 3rem;
+  border-bottom: 1px solid var(--nd-line);
+}
+
+.nordic__hero-copy h1 {
+  margin: 1rem 0 0;
+  font-family: Literata, Georgia, serif;
+  font-size: clamp(2.3rem, 5vw, 3.8rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.nordic__quiet {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--nd-mute);
+}
+
+.nordic__hero-copy p {
+  margin: 1.15rem 0 0;
+  max-width: 28rem;
+  line-height: 1.6;
+  color: var(--nd-mute);
+}
+
+.nordic__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.6rem;
+}
+
+.nordic__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.85rem 1.2rem;
+  background: var(--nd-ink);
+  color: var(--nd-paper);
+  text-decoration: none;
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.nordic__btn--line {
+  background: transparent;
+  color: var(--nd-ink);
+  border: 1px solid var(--nd-line);
+}
+
+.nordic__hero-media {
+  min-height: 22rem;
+  overflow: hidden;
+  background: var(--nd-bone);
+}
+
+.nordic__hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.nordic__section {
+  padding-block: clamp(3rem, 8vw, 5.5rem);
+  border-bottom: 1px solid var(--nd-line);
+}
+
+.nordic__section h2 {
+  margin: 0;
+  font-family: Literata, Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.nordic__section > .nordic__pad > p,
+.nordic__intro {
+  margin: 0.9rem 0 0;
+  max-width: 34rem;
+  line-height: 1.55;
+  color: var(--nd-mute);
+}
+
+.nordic__materials {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.nordic__materials figure {
+  margin: 0;
+  background: var(--nd-bone);
+}
+
+.nordic__materials img {
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.nordic__materials figcaption {
+  padding: 0.85rem 0.2rem 0;
+  font-size: 0.84rem;
+  color: var(--nd-mute);
+}
+
+.nordic__homes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.nordic__homes article {
+  border-top: 1px solid var(--nd-line);
+  padding-top: 1rem;
+}
+
+.nordic__homes img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 0.9rem;
+  background: var(--nd-bone);
+}
+
+.nordic__homes h3 {
+  margin: 0 0 0.35rem;
+  font-family: Literata, Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.nordic__homes p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--nd-mute);
+  line-height: 1.45;
+}
+
+.nordic__steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.nordic__steps article {
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--nd-line);
+}
+
+.nordic__steps span {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: var(--nd-wood);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+
+.nordic__steps h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.nordic__steps p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--nd-mute);
+  line-height: 1.45;
+}
+
+.nordic__lead {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(1.4rem, 4vw, 3rem);
+  align-items: end;
+}
+
+.nordic__lead h2 {
+  margin: 0;
+}
+
+.nordic__lead p {
+  margin: 1rem 0 0;
+  color: var(--nd-mute);
+  line-height: 1.5;
+  max-width: 28rem;
+}
+
+.nordic__foot {
+  padding: 1.25rem clamp(1.1rem, 5vw, 4rem) 2.25rem;
+  color: var(--nd-mute);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .nordic__hero,
+  .nordic__materials,
+  .nordic__homes,
+  .nordic__steps,
+  .nordic__lead {
+    grid-template-columns: 1fr;
+  }
+
+  .nordic__hero-media {
+    min-height: 16rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nordic .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

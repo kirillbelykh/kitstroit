@@ -1,0 +1,362 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Outfit:wght@400;500;600&display=swap');
+
+.craft {
+  --cr-ink: #1c1a17;
+  --cr-paper: #f4f1ea;
+  --cr-sand: #ebe4d6;
+  --cr-stone: #8a8174;
+  --cr-wood: #6e5843;
+  --cr-line: rgba(28, 26, 23, 0.14);
+  min-height: 100svh;
+  color: var(--cr-ink);
+  background: var(--cr-paper);
+  font-family: Outfit, 'Segoe UI', sans-serif;
+}
+
+.craft a {
+  color: inherit;
+}
+
+.craft__pad {
+  padding-inline: clamp(1.1rem, 4vw, 3.5rem);
+}
+
+.craft__hero {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: end;
+  min-height: min(88svh, 52rem);
+  padding-top: 2rem;
+  padding-bottom: 2.5rem;
+}
+
+.craft__hero-copy h1 {
+  margin: 1rem 0 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.craft__kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cr-stone);
+}
+
+.craft__hero-copy p {
+  margin: 1.2rem 0 0;
+  max-width: 30rem;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--cr-ink) 78%, transparent);
+}
+
+.craft__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+.craft__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  background: var(--cr-ink);
+  color: var(--cr-paper);
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
+.craft__btn--ghost {
+  background: transparent;
+  color: var(--cr-ink);
+  border: 1px solid var(--cr-line);
+}
+
+.craft__hero-media {
+  position: relative;
+  min-height: 24rem;
+  overflow: hidden;
+  background: var(--cr-sand);
+}
+
+.craft__hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.craft__section {
+  padding-block: clamp(3rem, 8vw, 6rem);
+}
+
+.craft__section--sand {
+  background: var(--cr-sand);
+}
+
+.craft__section--ink {
+  background: var(--cr-ink);
+  color: var(--cr-paper);
+}
+
+.craft__split {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.craft__split--flip {
+  grid-template-columns: 1.1fr 0.9fr;
+}
+
+.craft__split--flip .craft__copy {
+  order: 2;
+}
+
+.craft__eyebrow {
+  margin: 0 0 0.7rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cr-stone);
+}
+
+.craft__section--ink .craft__eyebrow {
+  color: rgba(244, 241, 234, 0.62);
+}
+
+.craft__copy h2 {
+  margin: 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(1.9rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.craft__copy p {
+  margin: 1rem 0 0;
+  line-height: 1.55;
+  max-width: 34rem;
+}
+
+.craft__media {
+  min-height: 18rem;
+  overflow: hidden;
+  background: #d9d0c0;
+}
+
+.craft__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.craft__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.craft__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.craft__card img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  background: #d9d0c0;
+}
+
+.craft__card h3 {
+  margin: 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.craft__card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--cr-stone);
+  line-height: 1.45;
+}
+
+.craft__team {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.craft__team article {
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--cr-line);
+}
+
+.craft__team h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.craft__team p {
+  margin: 0;
+  color: var(--cr-stone);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.craft__steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.craft__steps article {
+  padding-top: 1rem;
+  border-top: 1px solid var(--cr-line);
+}
+
+.craft__section--ink .craft__steps article {
+  border-top-color: rgba(244, 241, 234, 0.18);
+}
+
+.craft__steps span {
+  display: block;
+  margin-bottom: 0.7rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--cr-wood);
+}
+
+.craft__section--ink .craft__steps span {
+  color: #c4a882;
+}
+
+.craft__steps h3 {
+  margin: 0 0 0.55rem;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.craft__steps p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  opacity: 0.82;
+}
+
+.craft__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.craft__pair article {
+  padding: 1.4rem;
+  background: var(--cr-paper);
+  border: 1px solid var(--cr-line);
+}
+
+.craft__pair h3 {
+  margin: 0 0 0.55rem;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 400;
+}
+
+.craft__pair p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--cr-stone);
+}
+
+.craft__founder {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+}
+
+.craft__founder img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  display: block;
+  background: #d9d0c0;
+}
+
+.craft__lead {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: end;
+}
+
+.craft__lead h2 {
+  margin: 0;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-weight: 400;
+  line-height: 1.12;
+}
+
+.craft__lead p {
+  margin: 1rem 0 0;
+  max-width: 28rem;
+  line-height: 1.5;
+  color: var(--cr-stone);
+}
+
+.craft__foot {
+  padding: 1.25rem clamp(1.1rem, 4vw, 3.5rem) 2.25rem;
+  border-top: 1px solid var(--cr-line);
+  color: var(--cr-stone);
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .craft__hero,
+  .craft__split,
+  .craft__split--flip,
+  .craft__grid,
+  .craft__team,
+  .craft__steps,
+  .craft__pair,
+  .craft__founder,
+  .craft__lead {
+    grid-template-columns: 1fr;
+  }
+
+  .craft__split--flip .craft__copy {
+    order: 0;
+  }
+
+  .craft__hero-media {
+    min-height: 16rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .craft .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

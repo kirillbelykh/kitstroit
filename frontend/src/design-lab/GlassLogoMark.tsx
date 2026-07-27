@@ -56,16 +56,23 @@ function probeWebGL(): boolean {
   }
 }
 
+function prefersStaticLogo(): boolean {
+  if (typeof window === 'undefined') return false
+  return matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 export default function GlassLogoMark({ src, label, size, theme, className = '' }: GlassLogoMarkProps) {
   const [failed, setFailed] = useState(false)
   const [webglOk, setWebglOk] = useState(() => (typeof window === 'undefined' ? true : probeWebGL()))
+  const [staticMotion, setStaticMotion] = useState(() => prefersStaticLogo())
 
   useEffect(() => {
     setWebglOk(probeWebGL())
+    setStaticMotion(prefersStaticLogo())
   }, [])
 
   const isHero = size === 'hero'
-  const showFallback = failed || !webglOk
+  const showFallback = failed || !webglOk || staticMotion
 
   const shellStyle: CSSProperties = {
     width: '100%',

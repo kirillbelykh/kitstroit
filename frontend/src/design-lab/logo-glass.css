@@ -18,38 +18,9 @@
   background: var(--lab-ink);
 }
 
-.logo-glass-lab__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.logo-glass-lab__back {
-  color: inherit;
-  text-decoration: none;
-  font-size: 0.95rem;
-  letter-spacing: 0.02em;
-}
-
-.logo-glass-lab__back:hover {
-  color: var(--lab-brass);
-}
-
-.logo-glass-lab__badge {
-  margin: 0;
-  padding: 0.35rem 0.65rem;
-  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
-  font-family: system-ui, sans-serif;
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .logo-glass-lab__intro {
   max-width: 40rem;
-  margin-bottom: 2.5rem;
+  margin: 1.5rem 0 2.5rem;
 }
 
 .logo-glass-lab__intro h1 {
