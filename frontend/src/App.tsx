@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { BorderBeam } from 'border-beam'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
+import { IconSwap } from './components/IconSwap'
+import { NumberPopIn } from './components/NumberPopIn'
+import { StaggerReveal } from './components/StaggerReveal'
 import { TiltCard } from './components/TiltCard'
 import { api } from './api'
 import { setPendingCta, trackCtaClick, trackFaqOpen, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
@@ -103,7 +106,14 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
   }, [open])
 
   return <header className={open ? 'site-header menu-open' : 'site-header'}>
-    <button ref={menuButtonRef} className="menu-button" aria-label={open ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={open} aria-controls="main-menu" onClick={() => setOpen(!open)}><span /><span /><span className="sr-only">Меню</span></button>
+    <button ref={menuButtonRef} className="menu-button" type="button" aria-label={open ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={open} aria-controls="main-menu" onClick={() => setOpen(!open)}>
+      <IconSwap
+        state={open ? 'b' : 'a'}
+        iconA={<span className="menu-icon-bars" aria-hidden="true"><i /><i /><i /></span>}
+        iconB={<span className="menu-icon-close" aria-hidden="true"><i /><i /></span>}
+      />
+      <span className="sr-only">Меню</span>
+    </button>
     <nav ref={navRef} id="main-menu" className={open ? 'main-nav is-open' : 'main-nav'} aria-label="Главная навигация">
       <div><a href="#projects" onClick={() => setOpen(false)}>Проекты</a><a href="#founder" onClick={() => setOpen(false)}>Основатель</a></div>
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
@@ -115,26 +125,50 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
   </header>
 }
 
-function ProjectPlan({ variant }: { variant: Project['plan'] }) {
-  const rooms = variant === 'courtyard'
-    ? [[8, 8, 36, 42], [48, 8, 44, 25], [48, 37, 20, 36], [72, 37, 20, 36], [8, 54, 36, 19]]
-    : variant === 'compact'
-      ? [[8, 8, 27, 31], [39, 8, 53, 31], [8, 43, 27, 30], [39, 43, 28, 30], [71, 43, 21, 30]]
-      : [[8, 8, 20, 65], [32, 8, 36, 65], [72, 8, 20, 30], [72, 42, 20, 31]]
-  return <svg className="project-plan" viewBox="0 0 100 81" role="img" aria-label="Концептуальная схема планировки">
-    <rect x="4" y="4" width="92" height="73" />
-    {rooms.map(([x, y, w, h], i) => <g key={i}><rect x={x} y={y} width={w} height={h} /><line x1={x + w / 2} y1={y + h} x2={x + w / 2} y2={y + h - 4} /></g>)}
-    <line x1="4" y1="79" x2="96" y2="79" /><line x1="4" y1="77" x2="4" y2="81" /><line x1="96" y1="77" x2="96" y2="81" />
-  </svg>
+function ProjectPlan() {
+  return (
+    <img
+      className="project-plan"
+      src="/media/plans/plan-example.png"
+      alt="Пример планировочной схемы"
+      loading="lazy"
+    />
+  )
 }
 
+const LIGHTBOX_MIN_SCALE = 1
+const LIGHTBOX_MAX_SCALE = 3
+const LIGHTBOX_DOUBLE_TAP_SCALE = 2.25
+
 function ProjectLightbox({ title, media, index, onClose, onMove }: { title: string; media: string[]; index: number; onClose: () => void; onMove: (direction: number) => void }) {
-  const touchStart = useRef<{ x: number; y: number } | null>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
   const onCloseRef = useRef(onClose)
   const onMoveRef = useRef(onMove)
+  const scaleRef = useRef(1)
+  const translateRef = useRef({ x: 0, y: 0 })
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>())
+  const pinchRef = useRef<{ distance: number; scale: number } | null>(null)
+  const panRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null)
+  const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const lastTapRef = useRef(0)
+  const [transform, setTransform] = useState({ scale: 1, x: 0, y: 0 })
   onCloseRef.current = onClose
   onMoveRef.current = onMove
+
+  function applyTransform(scale: number, x: number, y: number) {
+    scaleRef.current = scale
+    translateRef.current = { x, y }
+    setTransform({ scale, x, y })
+  }
+
+  function resetZoom() {
+    applyTransform(1, 0, 0)
+  }
+
+  useEffect(() => {
+    resetZoom()
+  }, [index])
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
@@ -163,41 +197,142 @@ function ProjectLightbox({ title, media, index, onClose, onMove }: { title: stri
     }
   }, [])
 
+  function pointerDistance() {
+    const points = [...pointersRef.current.values()]
+    if (points.length < 2) return 0
+    const [a, b] = points
+    return Math.hypot(b.x - a.x, b.y - a.y)
+  }
+
+  function onPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    stageRef.current?.setPointerCapture(event.pointerId)
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+    if (pointersRef.current.size === 2) {
+      swipeRef.current = null
+      panRef.current = null
+      pinchRef.current = { distance: pointerDistance(), scale: scaleRef.current }
+      return
+    }
+
+    if (scaleRef.current > 1.02) {
+      panRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+        tx: translateRef.current.x,
+        ty: translateRef.current.y,
+      }
+      swipeRef.current = null
+    } else {
+      swipeRef.current = { x: event.clientX, y: event.clientY }
+      panRef.current = null
+    }
+
+    const now = performance.now()
+    if (now - lastTapRef.current < 280 && pointersRef.current.size === 1) {
+      lastTapRef.current = 0
+      swipeRef.current = null
+      panRef.current = null
+      if (scaleRef.current > 1.05) resetZoom()
+      else applyTransform(LIGHTBOX_DOUBLE_TAP_SCALE, 0, 0)
+      return
+    }
+    lastTapRef.current = now
+  }
+
+  function onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!pointersRef.current.has(event.pointerId)) return
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY })
+
+    if (pointersRef.current.size >= 2 && pinchRef.current) {
+      const distance = pointerDistance()
+      if (distance < 1 || pinchRef.current.distance < 1) return
+      const next = Math.min(
+        LIGHTBOX_MAX_SCALE,
+        Math.max(LIGHTBOX_MIN_SCALE, pinchRef.current.scale * (distance / pinchRef.current.distance)),
+      )
+      const { x, y } = translateRef.current
+      applyTransform(next, next <= 1.02 ? 0 : x, next <= 1.02 ? 0 : y)
+      return
+    }
+
+    if (panRef.current && scaleRef.current > 1.02) {
+      applyTransform(
+        scaleRef.current,
+        panRef.current.tx + (event.clientX - panRef.current.x),
+        panRef.current.ty + (event.clientY - panRef.current.y),
+      )
+    }
+  }
+
+  function onPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    pointersRef.current.delete(event.pointerId)
+    if (pointersRef.current.size < 2) pinchRef.current = null
+    if (pointersRef.current.size === 0) {
+      if (swipeRef.current && scaleRef.current <= 1.02) {
+        const dx = event.clientX - swipeRef.current.x
+        const dy = event.clientY - swipeRef.current.y
+        if (Math.abs(dx) >= 40 && Math.abs(dx) >= Math.abs(dy) * 1.1) {
+          onMove(dx < 0 ? 1 : -1)
+        }
+      }
+      swipeRef.current = null
+      panRef.current = null
+      if (scaleRef.current <= 1.02) resetZoom()
+    }
+  }
+
   return createPortal(
     <div
       className="project-lightbox"
       role="dialog"
       aria-modal="true"
       aria-label={`${title}, просмотр фото`}
-      onTouchStart={(event) => {
-        const touch = event.changedTouches[0]
-        touchStart.current = { x: touch.clientX, y: touch.clientY }
-      }}
-      onTouchEnd={(event) => {
-        if (!touchStart.current) return
-        const touch = event.changedTouches[0]
-        const dx = touch.clientX - touchStart.current.x
-        const dy = touch.clientY - touchStart.current.y
-        touchStart.current = null
-        if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.1) return
-        onMove(dx < 0 ? 1 : -1)
-      }}
     >
       <button ref={closeRef} className="project-lightbox-close" type="button" aria-label="Закрыть" onClick={onClose}>×</button>
       <button className="project-lightbox-nav project-lightbox-prev" type="button" aria-label="Предыдущий кадр" onClick={() => onMove(-1)}>←</button>
-      <div className="project-lightbox-stage">
+      <div
+        ref={stageRef}
+        className="project-lightbox-stage"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
         <img
           className="project-lightbox-image"
           key={media[index]}
           src={media[index]}
           alt={`${title}, кадр ${index + 1}`}
           draggable={false}
+          style={{
+            transform: `translate3d(${transform.x}px, ${transform.y}px, 0) scale(${transform.scale})`,
+            touchAction: 'none',
+          }}
         />
       </div>
       <button className="project-lightbox-nav project-lightbox-next" type="button" aria-label="Следующий кадр" onClick={() => onMove(1)}>→</button>
       <p className="project-lightbox-meta">{String(index + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}</p>
     </div>,
     document.body,
+  )
+}
+
+function FaqItem({ question, answer, index }: { question: string; answer: string; index: number }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <Reveal delay={index * 50}>
+      <details
+        onToggle={(event) => {
+          const isOpen = event.currentTarget.open
+          setOpen(isOpen)
+          if (isOpen) trackFaqOpen(question, index + 1)
+        }}
+      >
+        <summary><span>0{index + 1}</span>{question}<i>+</i></summary>
+        <StaggerReveal open={open} text={answer} />
+      </details>
+    </Reveal>
   )
 }
 
@@ -222,18 +357,26 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
         <TiltCard className="magazine-tilt">
           <button className="magazine-open" type="button" onClick={() => setLightboxOpen(true)} aria-label={`Открыть фото ${project.title} на весь экран`}>
             <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
-            <span className="magazine-open-hint">На весь экран</span>
+            <span className="magazine-open-hint" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square">
+                <path d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6" />
+              </svg>
+            </span>
           </button>
         </TiltCard>
-        <div className="magazine-controls"><button aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button><span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span><button aria-label="Следующий кадр" onClick={() => move(1)}>→</button></div>
+        <div className="magazine-controls">
+          <button type="button" className="magazine-prev" aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button>
+          <span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span>
+          <button type="button" className="magazine-next" aria-label="Следующий кадр" onClick={() => move(1)}>→</button>
+        </div>
       </div>
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
-        <dl><div><dt>Площадь</dt><dd>{project.area}</dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
+        <dl><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
         <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
-    <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><TiltCard className="plan-tilt"><ProjectPlan variant={project.plan} /></TiltCard></div>
+    <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><TiltCard className="plan-tilt"><ProjectPlan /></TiltCard></div>
     {lightboxOpen && <ProjectLightbox title={project.title} media={project.media} index={activeMedia} onClose={() => setLightboxOpen(false)} onMove={move} />}
   </section>
 }
@@ -366,7 +509,7 @@ function App() {
 
       <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 06 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
-      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 07 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <Reveal key={question} delay={i * 50}><details onToggle={(event) => { const el = event.currentTarget; if (el.open) trackFaqOpen(question, i + 1) }}><summary><span>0{i + 1}</span>{question}<i>+</i></summary><p>{answer}</p></details></Reveal>)}</div></section>
+      <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 07 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <FaqItem key={question} question={question} answer={answer} index={i} />)}</div></section>
 
       <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
