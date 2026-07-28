@@ -108,7 +108,7 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
       <div><a href="#projects" onClick={() => setOpen(false)}>Проекты</a><a href="#founder" onClick={() => setOpen(false)}>Основатель</a></div>
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
     </nav>
-    <BorderBeam className="header-logo-beam" colorVariant="mono" theme="dark" size="sm" strength={0.7}>
+    <BorderBeam className="header-logo-beam" borderRadius={0} colorVariant="mono" theme="dark" size="sm" strength={0.65}>
       <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
     </BorderBeam>
     <a className="header-phone" href={phoneLink} onClick={onPhoneClick}>{phone}</a>
