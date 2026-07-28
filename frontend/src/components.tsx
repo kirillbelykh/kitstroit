@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { sendLead } from './api'
 import { awaitYmClientId, getLeadAttribution, trackFormError, trackLeadStart, trackLeadSuccess } from './analytics'
+import { ConsentCheck } from './components/ConsentCheck'
 
 export const PHONE_DISPLAY = '8 (965) 013-03-33'
 export const PHONE_LINK = 'tel:+79650130333'
@@ -49,6 +50,8 @@ export function Reveal({ children, className = '', delay = 0 }: { children: Reac
 export function LeadForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
   const [error, setError] = useState('')
+  const [consent, setConsent] = useState(false)
+  const [consentError, setConsentError] = useState(false)
   const started = useRef(false)
   const submitLock = useRef(false)
 
@@ -64,6 +67,14 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
     submitLock.current = true
     const form = event.currentTarget
     const data = new FormData(form)
+    if (!consent) {
+      setConsentError(true)
+      setError('Нужно согласие на обработку персональных данных')
+      setStatus('error')
+      submitLock.current = false
+      return
+    }
+    setConsentError(false)
     setStatus('sending')
     setError('')
     try {
@@ -78,6 +89,7 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       })
       trackLeadSuccess()
       form.reset()
+      setConsent(false)
       setStatus('done')
     } catch (cause) {
       trackFormError()
@@ -101,7 +113,14 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       </>}
       <div className="form-action wide">
         <button className="button button-solid" disabled={status === 'sending'}>{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'} <Arrow diagonal /></button>
-        <label className="consent"><input type="checkbox" required /> <span>Согласен с <a href="/privacy" target="_blank">обработкой персональных данных</a></span></label>
+        <label className="consent">
+          <ConsentCheck
+            checked={consent}
+            onChange={(next) => { setConsent(next); if (next) setConsentError(false) }}
+            invalid={consentError}
+          />
+          <span>Согласен с <a href="/privacy" target="_blank" rel="noreferrer">обработкой персональных данных</a></span>
+        </label>
       </div>
       {status === 'error' && <p className="form-error wide" role="alert">{error}</p>}
     </form>
