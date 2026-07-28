@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { BorderBeam } from 'border-beam'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
+import { TiltCard } from './components/TiltCard'
 import { api } from './api'
 import { setPendingCta, trackCtaClick, trackFaqOpen, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
 
@@ -106,7 +108,9 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
       <div><a href="#projects" onClick={() => setOpen(false)}>Проекты</a><a href="#founder" onClick={() => setOpen(false)}>Основатель</a></div>
       <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
     </nav>
-    <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
+    <BorderBeam className="header-logo-beam" colorVariant="mono" theme="dark" size="sm" strength={0.7}>
+      <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
+    </BorderBeam>
     <a className="header-phone" href={phoneLink} onClick={onPhoneClick}>{phone}</a>
   </header>
 }
@@ -215,10 +219,12 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     <div className="magazine">
       <div className="magazine-media">
         <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
-        <button className="magazine-open" type="button" onClick={() => setLightboxOpen(true)} aria-label={`Открыть фото ${project.title} на весь экран`}>
-          <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
-          <span className="magazine-open-hint">На весь экран</span>
-        </button>
+        <TiltCard className="magazine-tilt">
+          <button className="magazine-open" type="button" onClick={() => setLightboxOpen(true)} aria-label={`Открыть фото ${project.title} на весь экран`}>
+            <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
+            <span className="magazine-open-hint">На весь экран</span>
+          </button>
+        </TiltCard>
         <div className="magazine-controls"><button aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button><span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span><button aria-label="Следующий кадр" onClick={() => move(1)}>→</button></div>
       </div>
       <div className="magazine-copy">
@@ -227,7 +233,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
         <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
-    <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><ProjectPlan variant={project.plan} /></div>
+    <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><TiltCard className="plan-tilt"><ProjectPlan variant={project.plan} /></TiltCard></div>
     {lightboxOpen && <ProjectLightbox title={project.title} media={project.media} index={activeMedia} onClose={() => setLightboxOpen(false)} onMove={move} />}
   </section>
 }
@@ -342,7 +348,7 @@ function App() {
           <div className="hero-slide hero-slide-five hero-slide-mobile" />
         </div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1 className="hero-title">{heroTitle}</h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1 className="hero-title"><span className="t-shimmer" data-text={heroTitle}>{heroTitle}</span></h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
