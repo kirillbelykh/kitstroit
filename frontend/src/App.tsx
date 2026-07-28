@@ -491,7 +491,7 @@ function App() {
           <div className="hero-slide hero-slide-five hero-slide-mobile" />
         </div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Архитектура для жизни · с 2013</p><h1 className="hero-title"><span className="t-shimmer" data-text={heroTitle}>{heroTitle}</span></h1><div className="hero-bottom"><p>{hero?.body || 'Проектируем и строим современные загородные дома под ключ с фиксированной сметой и гарантией 10 лет.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><p className="eyebrow">Строим дома с 2013</p><h1 className="hero-title"><span className="t-shimmer" data-text={heroTitle}>{heroTitle}</span></h1><div className="hero-bottom"><p>{hero?.body || 'Продумываем проект, фиксируем стоимость договором и строим дом как единую систему.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
