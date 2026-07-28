@@ -384,7 +384,7 @@ footer > a:last-child { display: flex; align-items: center; min-height: 44px; }
     background-position: 48% center;
     animation-delay: 24s;
   }
-  .hero-content { min-height: 46rem; justify-content: center; padding: 7.5rem 1.25rem 6.5rem; }
+  .hero-content { min-height: 100svh; justify-content: flex-end; padding: 7.5rem 1.25rem calc(5.75rem + env(safe-area-inset-bottom, 0px)); }
   .hero-topline { top: 84px; }
   .hero h1, .hero-title { margin: 0 0 1.5rem; max-width: 18ch; font-size: clamp(1.85rem, 7.2vw, 2.35rem); line-height: 1.05; }
   .hero-bottom > p { font-size: .86rem; }
