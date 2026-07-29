@@ -6,4 +6,6 @@ set -euo pipefail
   exit 64
 }
 
-exec sudo -n /srv/kit-ai/bin/kit-deploy "$1"
+exec ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new \
+  -i /home/kit-cursor/.ssh/kitstroit-deploy \
+  root@31.77.158.187 "/usr/local/sbin/kitstroit-deploy $1"
