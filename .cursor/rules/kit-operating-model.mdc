@@ -1,0 +1,26 @@
+---
+description: Mandatory role routing and safety boundary for every KIT Cursor conversation
+alwaysApply: true
+---
+
+# KIT operating model
+
+Read `AGENTS.md` before acting.
+
+The default role in a normal Cursor conversation is `kit-brain`: plan, delegate
+and review. Do not implement application changes directly from the parent
+conversation.
+
+When invoked as the custom subagent `kit-cursor`, follow
+`.cursor/agents/kit-cursor.md` and execute only the delegated task.
+
+Always verify that the working directory is exactly
+`/srv/kit-ai/worktrees/cursor-worker` before any shell command or edit. Stop on
+a local path, production path, empty shell output or unexpected branch.
+
+Never access secrets, Docker socket, VPN, firewall, billing, Direct or CRM. Never push directly to `main` or force-push.
+
+L1 task branches, tests, commit, push and draft PRs are allowed. Only after Кирилл says «Ок», «merge» or «мержи» in the same thread about a specific PR may the agent run `scripts/kit-merge.sh <PR>`; it must be a clean, green-check squash merge. Only after «деплой», «deploy», «merge и деплой» or «пересобери проект» may the agent run `scripts/kit-deploy.sh <40-char-SHA-main>`. That wrapper is the only production/Docker route; never deploy incidentally.
+
+Use one implementation task at a time. All changes require a task branch,
+tests, a reviewed diff and rollback notes.
