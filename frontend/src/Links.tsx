@@ -3,8 +3,8 @@ import { trackCtaClick, trackPhoneClick, trackTelegramClick } from './analytics'
 
 const LINKS = [
   { label: 'Сайт', href: 'https://kitstroit.ru', cta: 'links_site', variant: 'primary' as const },
-  { label: 'Telegram', href: 'https://t.me/kitstroit', cta: 'links_telegram', telegram: true, variant: 'ghost' as const },
-  { label: 'Max', href: 'https://6max.ru/kit_stroit', cta: 'links_max', variant: 'ghost' as const },
+  { label: 'Telegram-канал', href: 'https://t.me/kitstroit/15', cta: 'links_telegram', telegram: true, variant: 'ghost' as const },
+  { label: 'Канал Max', href: 'https://6max.ru/kit_stroit', cta: 'links_max', variant: 'ghost' as const },
 ] as const
 
 export default function Links() {
