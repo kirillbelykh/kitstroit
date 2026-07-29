@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import AdminApp from './admin/AdminApp'
 import Privacy from './Privacy'
+import Links from './Links'
 import { initMetrika } from './analytics'
 import { isLabPath } from './design-lab/lab-variants'
 import './styles.css'
@@ -18,6 +19,7 @@ const LogoGlassLab = lazy(() => import('./design-lab/LogoGlassLab'))
 const path = window.location.pathname.replace(/\/+$/, '') || '/'
 const isAdmin = path.startsWith('/admin')
 const isPrivacy = path === '/privacy'
+const isLinks = path === '/links'
 const isLab = isLabPath(path)
 
 if (!isAdmin && !isLab) initMetrika()
@@ -55,6 +57,7 @@ function labPage() {
 const root = (() => {
   if (isAdmin) return <AdminApp />
   if (isPrivacy) return <Privacy />
+  if (isLinks) return <Links />
   if (isLab) {
     return <Suspense fallback={labFallback}>{labPage()}</Suspense>
   }
