@@ -20,7 +20,6 @@ export default function Links() {
         <p className="links-page__tagline">
           Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области
         </p>
-        <p className="links-page__support">Проекты и связь</p>
         <nav className="links-page__nav" aria-label="Контакты KIT">
           {LINKS.map((item) => (
             <a
