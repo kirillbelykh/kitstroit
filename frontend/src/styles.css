@@ -915,7 +915,6 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   .hero-slide-one { opacity: 1; }
   .reveal { opacity: 1; transform: none; }
   .t-shimmer::before { animation: none !important; }
-  .t-tilt-card { transform: none !important; transition: none !important; }
   .t-check, .t-check svg path { transition: none !important; }
   .t-icon-swap .t-icon { transition: none !important; }
   .t-digit-group .t-digit { animation: none !important; opacity: 1; }
