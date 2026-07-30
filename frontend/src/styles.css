@@ -132,12 +132,9 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 .project-tabs button[aria-pressed="true"] { border-color: var(--brass); opacity: 1; }
 .project-tabs span { margin-right: .65rem; font-size: .625rem; opacity: .55; }
 .magazine { display: grid; grid-template-columns: 75% 25%; align-items: stretch; border-bottom: 1px solid var(--line-light); }
-.magazine-media { position: relative; width: 100%; height: auto; aspect-ratio: 4 / 3; overflow: hidden; background: var(--ink-soft); }
-.magazine-backdrop { position: absolute; inset: -2rem; z-index: 0; width: calc(100% + 4rem); height: calc(100% + 4rem); object-fit: cover; filter: blur(28px) saturate(.8) brightness(.7); transform: scale(1.04); }
+.magazine-media { position: relative; width: 100%; height: auto; aspect-ratio: 4 / 3; overflow: hidden; background: var(--ink-soft); touch-action: pan-y; }
 .magazine-open { position: absolute; inset: 0; z-index: 1; display: block; width: 100%; height: 100%; padding: 0; border: 0; color: inherit; background: transparent; cursor: zoom-in; }
-.magazine-image { width: 100%; height: 100%; object-fit: contain; object-position: center; animation: image-arrive .65s ease; pointer-events: none; }
-.magazine-media.is-cover .magazine-image { object-fit: cover; }
-.magazine-media.is-cover { touch-action: pan-y; }
+.magazine-image { width: 100%; height: 100%; object-fit: cover; object-position: center; animation: image-arrive .65s ease; pointer-events: none; }
 .magazine-open-hint { position: absolute; z-index: 2; left: 1rem; bottom: 1rem; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; color: var(--bone); background: rgba(18,19,16,.42); border: 1px solid rgba(233,229,218,.35); pointer-events: none; }
 @keyframes image-arrive { from { opacity: .25; transform: scale(1.012); } }
 @keyframes process-line-flow {
