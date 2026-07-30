@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type SyntheticEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { BorderBeam } from 'border-beam'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
@@ -335,6 +335,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const [activeProject, setActiveProject] = useState(0)
   const [activeMedia, setActiveMedia] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [mediaMinHeight, setMediaMinHeight] = useState<number>()
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const ignoreOpenClickRef = useRef(false)
   const project = projects[activeProject]
@@ -342,6 +343,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     setActiveProject(index)
     setActiveMedia(0)
     setLightboxOpen(false)
+    setMediaMinHeight(undefined)
     trackProjectOpen(index)
   }
   const move = (direction: number) => setActiveMedia((current) => (current + direction + project.media.length) % project.media.length)
@@ -365,18 +367,28 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     }
     setLightboxOpen(true)
   }
+  const onMagazineImageLoad = (event: SyntheticEvent<HTMLImageElement>) => {
+    const height = Math.round(event.currentTarget.getBoundingClientRect().height)
+    if (height > 0) setMediaMinHeight(height)
+  }
   return <section id="projects" className="projects section-ink">
     <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Представляем<br /><em>наши проекты</em></h2></Reveal>
     <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
       <div
         className="magazine-media"
+        style={mediaMinHeight ? { minHeight: mediaMinHeight } : undefined}
         onPointerDown={onGalleryPointerDown}
         onPointerUp={onGalleryPointerUp}
         onPointerCancel={() => { swipeRef.current = null }}
       >
         <button className="magazine-open" type="button" onClick={openLightbox} aria-label={`Открыть фото ${project.title} на весь экран`}>
-          <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
+          <img
+            className="magazine-image"
+            src={project.media[activeMedia]}
+            alt={`${project.title}, кадр ${activeMedia + 1}`}
+            onLoad={onMagazineImageLoad}
+          />
           <span className="magazine-open-hint" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square">
               <path d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6" />
