@@ -59,10 +59,10 @@ const videoReviews = [
 ] as const
 
 const steps = [
-  ['01', 'Знакомство и участок', 'Выезжаем, изучаем рельеф и коммуникации. Собираем ваши сценарии жизни, а не список комнат.', '/media/process-nikita.webp?v=20260727'],
-  ['02', 'Архитектура и смета', 'Фиксируем планировку, материалы, инженерные решения, стоимость и календарный план.', '/media/reviews/architectural-blueprints.mp4'],
-  ['03', 'Строительство', 'Один прораб и постоянная команда. Фотоотчёты, акты скрытых работ и контроль каждого этапа.', '/media/generated/process-frame.webp'],
-  ['04', 'Передача дома', 'Проверяем системы, устраняем замечания и передаём готовый дом с комплектом документов.', '/media/projects/pavlov-sky/img-2085.webp'],
+  ['01', 'Знакомство и задача', 'Выезжаем на участок или в квартиру. Собираем сценарии жизни, ограничения и приоритеты — без лишнего объёма работ.', '/media/process-nikita.webp?v=20260727'],
+  ['02', 'Проект и смета', 'Согласуем решения, материалы, объём работ, стоимость и календарный план. Всё фиксируем до старта.', '/media/reviews/architectural-blueprints.mp4'],
+  ['03', 'Строительство и отделка', 'Закреплённый ответственный и постоянная команда. Фотоотчёты, акты скрытых работ и контроль каждого этапа.', '/media/generated/process-frame.webp'],
+  ['04', 'Сдача объекта', 'Проверяем результат, устраняем замечания и передаём дом или квартиру с комплектом документов.', '/media/projects/pavlov-sky/img-2085.webp'],
 ] as const
 
 const TELEGRAM_CHANNEL = 'https://t.me/kitstroit/15'
@@ -71,15 +71,15 @@ const MAX_CHANNEL = 'https://6max.ru/kit_stroit'
 const advantages = [
   ['Фиксированная смета', 'Стоимость и состав работ закрепляем в договоре. Без скрытых платежей и внезапных доплат.'],
   ['Поэтапная оплата', 'Вы оплачиваете выполненные и принятые этапы, а не обещания будущего результата.'],
-  ['Контроль строительства', 'Календарный план, фотоотчёты и акты на скрытые работы — вы видите ход стройки.'],
-  ['Один ответственный подрядчик', 'Один договор, одна команда и личная ответственность до передачи ключей.'],
+  ['Контроль работ', 'Календарный план, фотоотчёты и акты на скрытые работы — ход стройки и отделки виден на каждом этапе.'],
+  ['Один ответственный подрядчик', 'Один договор, одна команда и личная ответственность до передачи объекта.'],
 ] as const
 
 const faqs = [
-  ['Можно ли построить по нашему проекту?', 'Да. Проверим готовый проект, адаптируем его к участку и инженерным условиям. Если проекта нет — разработаем с нуля.'],
+  ['Можно ли работать по нашему проекту?', 'Да. Проверим проект дома или дизайн-проект квартиры, адаптируем к условиям объекта. Если проекта нет — поможем подготовить решения с нуля.'],
   ['Смета действительно не меняется?', 'Стоимость и состав работ фиксируем в договоре. Изменения возможны только по вашему решению и оформляются отдельным соглашением.'],
-  ['Как контролировать стройку?', 'У вас будет календарный план, закреплённый прораб и регулярные фотоотчёты. Скрытые работы принимаются по актам.'],
-  ['Какая гарантия на дом?', 'Даём письменную гарантию 10 лет на выполненные работы и остаёмся на связи после передачи дома.'],
+  ['Как контролировать ход работ?', 'У вас будет календарный план, закреплённый ответственный и регулярные фотоотчёты. Скрытые работы принимаются по актам.'],
+  ['Какая гарантия на работы?', 'Даём письменную гарантию 10 лет на выполненные работы и остаёмся на связи после сдачи дома или квартиры.'],
 ]
 
 function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
@@ -119,7 +119,7 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
     </button>
     <nav ref={navRef} id="main-menu" className={open ? 'main-nav is-open' : 'main-nav'} aria-label="Главная навигация">
       <div><a href="#projects" onClick={() => setOpen(false)}>Проекты</a><a href="#founder" onClick={() => setOpen(false)}>Основатель</a></div>
-      <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как строим</a></div>
+      <div><a href="#videos" onClick={() => setOpen(false)}>Видео</a><a href="#process" onClick={() => setOpen(false)}>Как работаем</a></div>
     </nav>
     <BorderBeam className="header-logo-beam" borderRadius={0} colorVariant="mono" theme="dark" size="sm" strength={0.65}>
       <a className="logo header-logo" href="#top" aria-label="KIT — на главную"><span>K</span><span>I</span><span>T</span></a>
@@ -393,9 +393,9 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
         </div>
       </div>
       <div className="magazine-copy">
-        <p className="section-index">{project.place}</p><h3>{project.title}</h3><p>{project.summary}</p>
+        <p className="section-index">{project.place}</p><h3>{project.title}</h3>
         <dl><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
-        <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
+        <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий проект <Arrow diagonal /></a>
       </div>
     </div>
     {lightboxOpen && <ProjectLightbox title={project.title} media={project.media} index={activeMedia} onClose={() => setLightboxOpen(false)} onMove={move} />}
@@ -429,7 +429,7 @@ function ProcessSection({ eyebrow, title, body }: { eyebrow?: string; title?: st
     <Reveal className="section-head">
       <p className="section-index">{eyebrow || '[ 04 — процесс ]'}</p>
       <h2><ProcessTitle title={title} /></h2>
-      <p>{body || 'Участок и задача → проект и смета → команда и материалы → строительство и сдача. Каждый этап имеет результат и точку контроля.'}</p>
+      <p>{body || 'Дом или квартира → проект и смета → работы и контроль → сдача. Каждый этап имеет результат и точку приёмки.'}</p>
     </Reveal>
     <div className="process-cards">
       {steps.map(([number, stepTitle, text, media], index) => (
@@ -469,12 +469,18 @@ function App() {
   }, [content])
   const section = (key: string) => content?.sections.find((item) => item.key === key && item.enabled !== false)
   const hero = section('hero')
-  const heroTitle = !hero?.title || /строительство домов под ключ/i.test(hero.title) ? 'Точное соответствие вашим потребностям.' : hero.title
   const founder = section('founder')
   const process = section('process')
   const guarantee = section('guarantee')
   const lead = section('lead')
   const contacts = section('contacts')
+  const heroTitle = !hero?.title || /строительство домов под ключ/i.test(hero.title) ? 'Точное соответствие вашим потребностям.' : hero.title
+  const heroBody = !hero?.body || /Продумываем проект|единую систему/i.test(hero.body)
+    ? 'Строительство домов и отделка квартир под ключ с 2013 года'
+    : hero.body
+  const processBody = process?.body && !/Участок и задача/i.test(process.body)
+    ? process.body
+    : 'Дом или квартира → проект и смета → работы и контроль → сдача. Каждый этап имеет результат и точку приёмки.'
   const publicProjects = content?.projects.filter((project) => project.published !== false && project.slug !== 'familia') ?? []
   const projects = useMemo<Project[]>(() => publicProjects.length ? publicProjects.map((project, index) => {
     const fallback = fallbackProjects[index % fallbackProjects.length]
@@ -486,23 +492,23 @@ function App() {
       place: project.location || 'Санкт-Петербург и ЛО',
       area: project.area ? `${project.area} м²` : '—',
       status: ['pavlov-sky', 'dom-bezobrazova-repino', 'olimpiyskaya', 'suzdalskoe-12'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
-      summary: project.summary || fallback.summary,
+      summary: '',
       media: [...new Set(gallery.length ? gallery : fallback.media)],
       plan: fallback.plan,
     }
-  }) : fallbackProjects, [publicProjects])
+  }) : fallbackProjects.map((project) => ({ ...project, summary: '' })), [publicProjects])
   const phone = content?.settings.phone || content?.settings.phone_display || PHONE_DISPLAY
   const phoneLink = content?.settings.phone_href || `tel:${phone.replace(/\D/g, '').replace(/^8/, '+7')}` || PHONE_LINK
   const telegramLink = TELEGRAM_CHANNEL
   const telegramLabel = '@kitstroit'
   const email = content?.settings.email || 'info@kitstroit.ru'
   const discussCta = hero?.cta_label || 'Обсудить строительство'
-  const founderBody = founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей и после неё. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'
+  const founderBody = founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей и после неё. Для меня хороший результат — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'
   return <div className="site" id="top">
     <a className="skip-link" href="#main-content">Перейти к содержанию</a>
     <Header phone={phone} phoneLink={phoneLink} />
     <main id="main-content">
-      <section ref={heroRef} className="hero" aria-label="Строительство домов под ключ">
+      <section ref={heroRef} className="hero" aria-label="Строительство домов и отделка квартир под ключ">
         <div className="hero-media" aria-hidden="true">
           <div className="hero-slide hero-slide-one" />
           <div className="hero-slide hero-slide-two" />
@@ -511,7 +517,7 @@ function App() {
           <div className="hero-slide hero-slide-five hero-slide-mobile" />
         </div>
         <div className="hero-topline"><span>Санкт-Петербург</span><span>59.9343° N</span><span>Ленинградская область</span></div>
-        <div className="hero-content"><p className="eyebrow">Строим дома с 2013</p><h1 className="hero-title"><span className="t-shimmer" data-text={heroTitle}>{heroTitle}</span></h1><div className="hero-bottom"><p>{hero?.body || 'Продумываем проект, фиксируем стоимость договором и строим дом как единую систему.'}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
+        <div className="hero-content"><h1 className="hero-title"><span className="t-shimmer" data-text={heroTitle}>{heroTitle}</span></h1><div className="hero-bottom"><p>{heroBody}</p><div className="hero-actions"><a className="button button-light" href={hero?.cta_url || '#lead'} onClick={onCtaClick('hero_calculate')}>{discussCta} <Arrow diagonal /></a><a className="text-link" href={phoneLink} onClick={onPhoneClick}>Позвонить <span>{phone}</span></a></div></div></div>
         <a className="scroll-mark" href="#founder"><span>Листайте</span><i /></a>
       </section>
 
@@ -523,7 +529,7 @@ function App() {
 
       <ProjectMagazine projects={projects} />
       <VideoReviews />
-      <ProcessSection eyebrow={process?.eyebrow} title={process?.title} body={process?.body} />
+      <ProcessSection eyebrow={process?.eyebrow} title={process?.title} body={processBody} />
 
       <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 05 — преимущества ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{advantages.map(([title, text], i) => <Reveal key={title} className={`metric${title === 'Поэтапная оплата' ? ' metric-accent' : ''}`} delay={i * 60}><span className="metric-index">0{i + 1}</span><strong>{title}</strong><p>{text}</p></Reveal>)}</div></section>
 
@@ -531,11 +537,11 @@ function App() {
 
       <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 07 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <FaqItem key={question} question={question} answer={answer} index={i} />)}</div></section>
 
-      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
+      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашей <em>задачи.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, уточним дом или квартиру и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
       <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer"><span>Max</span>kit_stroit</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
-    <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><div className="footer-links"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}>Telegram</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer">Max</a><a href="/privacy">Политика конфиденциальности</a></div></footer>
+    <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов и отделка квартир под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><div className="footer-links"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}>Telegram</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer">Max</a><a href="/privacy">Политика конфиденциальности</a></div></footer>
     <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink} onClick={onPhoneClick}>Позвонить</a><a href={hero?.cta_url || '#lead'} onClick={onCtaClick('mobile_calculate')}>{discussCta} <Arrow diagonal /></a></div>
   </div>
 }
