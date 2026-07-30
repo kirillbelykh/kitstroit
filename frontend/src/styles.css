@@ -19,14 +19,6 @@
   --shimmer-highlight: #e9e5da;
   --shimmer-band: 400%;
   --shimmer-ease: linear;
-  --tilt-perspective: 1000px;
-  --tilt-return: 1000ms;
-  --tilt-return-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --tilt-follow: 400ms;
-  --tilt-follow-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --tilt-glare-opacity: 0.32;
-  --tilt-glare-fade: 300ms;
-  --tilt-glare-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --check-box: 150ms;
   --check-draw: 350ms;
   --check-delay: 0ms;
@@ -414,16 +406,7 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
     overflow: hidden;
     background: var(--ink);
   }
-  .magazine-media .magazine-tilt {
-    position: relative;
-    inset: auto;
-    display: block;
-  }
-  .magazine-media .magazine-tilt .t-tilt-card {
-    width: 100%;
-    height: auto;
-  }
-  .magazine-media .magazine-tilt .magazine-open {
+  .magazine-open {
     position: relative;
     inset: auto;
     display: block;
@@ -438,7 +421,7 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
     object-position: center;
     display: block;
   }
-  .magazine-media > img, .magazine-open { min-height: 0; }
+  .magazine-open { min-height: 0; }
   .magazine-open-hint { left: auto; right: 1rem; bottom: auto; top: 1rem; }
   .magazine-copy { min-height: 27rem; padding: 2.5rem 1.25rem; }
   .magazine-copy h3 { margin-top: auto; font-size: 3.5rem; }
@@ -583,7 +566,7 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   .privacy-page article { margin-top: 5rem; }
 }
 
-/* Transitions.dev: shimmer / tilt / checkbox / icon-swap / digit / stagger */
+/* Transitions.dev: shimmer / checkbox / icon-swap / digit / stagger */
 .t-shimmer {
   position: relative;
   display: inline-block;
@@ -617,38 +600,6 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   0% { background-position: 100% 0; }
   100% { background-position: 0% 0; }
 }
-.t-tilt { touch-action: none; }
-.t-tilt-card {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  transform:
-    perspective(var(--tilt-perspective))
-    rotateX(var(--tilt-rx, 0deg))
-    rotateY(var(--tilt-ry, 0deg));
-  transform-style: preserve-3d;
-  transition: transform var(--tilt-return) var(--tilt-return-ease);
-  will-change: transform;
-}
-.t-tilt-card.is-tilting {
-  transition: transform var(--tilt-follow) var(--tilt-follow-ease);
-}
-.t-tilt-glare {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  mix-blend-mode: screen;
-  background:
-    radial-gradient(circle 95px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
-      rgba(255,255,255,0.48), rgba(255,255,255,0.06) 52%, rgba(255,255,255,0) 84%),
-    radial-gradient(circle 200px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
-      rgba(255,255,255,0.22), rgba(255,255,255,0.04) 58%, rgba(255,255,255,0) 78%),
-    radial-gradient(circle 360px at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
-      rgba(255,255,255,0.10), rgba(255,255,255,0) 88%);
-  transition: opacity var(--tilt-glare-fade) var(--tilt-glare-ease);
-}
-.t-tilt.is-hover .t-tilt-glare { opacity: var(--tilt-glare-opacity); }
 .t-check {
   display: inline-grid;
   place-items: center;
@@ -709,32 +660,17 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   background: none;
   box-shadow: none;
 }
-/* Desktop/tablet: fill the fixed 4/3 frame. Must stay AFTER the mobile
-   uncropped rules — otherwise absolute positioning collapses height:auto. */
+/* Desktop/tablet: fill the fixed 4/3 frame. */
 @media (min-width: 621px) {
-  .magazine-media .magazine-tilt {
+  .magazine-open {
     position: absolute;
     inset: 0;
-    z-index: 1;
-  }
-  .magazine-media .magazine-tilt .t-tilt-card {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-  }
-  .magazine-media .magazine-tilt .magazine-open {
-    position: relative;
-    inset: auto;
     width: 100%;
     height: 100%;
   }
 }
 .plan-tilt {
   width: 100%;
-}
-.plan-tilt .t-tilt-card {
-  border-radius: 0;
-  background: rgba(233, 229, 218, .55);
 }
 .plan-tilt .project-plan {
   padding: .75rem;
