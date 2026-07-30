@@ -62,8 +62,11 @@ const steps = [
   ['01', 'Знакомство и участок', 'Выезжаем, изучаем рельеф и коммуникации. Собираем ваши сценарии жизни, а не список комнат.', '/media/process-nikita.webp?v=20260727'],
   ['02', 'Архитектура и смета', 'Фиксируем планировку, материалы, инженерные решения, стоимость и календарный план.', '/media/reviews/architectural-blueprints.mp4'],
   ['03', 'Строительство', 'Один прораб и постоянная команда. Фотоотчёты, акты скрытых работ и контроль каждого этапа.', '/media/generated/process-frame.webp'],
-  ['04', 'Передача дома', 'Проверяем системы, устраняем замечания и передаём готовый дом с комплектом документов.', '/media/generated/project-forest.webp'],
+  ['04', 'Передача дома', 'Проверяем системы, устраняем замечания и передаём готовый дом с комплектом документов.', '/media/projects/pavlov-sky/img-2085.webp'],
 ] as const
+
+const TELEGRAM_CHANNEL = 'https://t.me/kitstroit/15'
+const MAX_CHANNEL = 'https://6max.ru/kit_stroit'
 
 const advantages = [
   ['Фиксированная смета', 'Стоимость и состав работ закрепляем в договоре. Без скрытых платежей и внезапных доплат.'],
@@ -125,17 +128,6 @@ function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
   </header>
 }
 
-function ProjectPlan() {
-  return (
-    <img
-      className="project-plan"
-      src="/media/plans/plan-example.png"
-      alt="Пример планировочной схемы"
-      loading="lazy"
-    />
-  )
-}
-
 const LIGHTBOX_MIN_SCALE = 1
 const LIGHTBOX_MAX_SCALE = 3
 const LIGHTBOX_DOUBLE_TAP_SCALE = 2.25
@@ -192,7 +184,11 @@ function ProjectLightbox({ title, media, index, onClose, onMove }: { title: stri
       document.body.style.position = previousPosition
       document.body.style.top = previousTop
       document.body.style.width = previousWidth
+      const root = document.documentElement
+      const previousScrollBehavior = root.style.scrollBehavior
+      root.style.scrollBehavior = 'auto'
       window.scrollTo(0, scrollY)
+      root.style.scrollBehavior = previousScrollBehavior
       window.removeEventListener('keydown', onKey)
     }
   }, [])
@@ -340,7 +336,10 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const [activeProject, setActiveProject] = useState(0)
   const [activeMedia, setActiveMedia] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const ignoreOpenClickRef = useRef(false)
   const project = projects[activeProject]
+  const coverCrop = activeMedia === 0 && /павлов/i.test(project.title)
   const selectProject = (index: number) => {
     setActiveProject(index)
     setActiveMedia(0)
@@ -348,14 +347,39 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     trackProjectOpen(index)
   }
   const move = (direction: number) => setActiveMedia((current) => (current + direction + project.media.length) % project.media.length)
+  const onGalleryPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    swipeRef.current = { x: event.clientX, y: event.clientY }
+  }
+  const onGalleryPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!swipeRef.current) return
+    const dx = event.clientX - swipeRef.current.x
+    const dy = event.clientY - swipeRef.current.y
+    swipeRef.current = null
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy) * 1.15) return
+    ignoreOpenClickRef.current = true
+    move(dx < 0 ? 1 : -1)
+  }
+  const openLightbox = () => {
+    if (ignoreOpenClickRef.current) {
+      ignoreOpenClickRef.current = false
+      return
+    }
+    setLightboxOpen(true)
+  }
   return <section id="projects" className="projects section-ink">
-    <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Представляем<br /><em>наши проекты</em></h2><p>Каждый проект — история места, семьи и точных решений. Выберите дом и откройте его как журнал.</p></Reveal>
+    <Reveal className="section-head"><p className="section-index">[ 02 — проекты ]</p><h2>Представляем<br /><em>наши проекты</em></h2></Reveal>
     <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
-      <div className="magazine-media">
-        <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />
+      <div
+        className={`magazine-media${coverCrop ? ' is-cover' : ''}`}
+        onPointerDown={onGalleryPointerDown}
+        onPointerUp={onGalleryPointerUp}
+        onPointerCancel={() => { swipeRef.current = null }}
+      >
+        {!coverCrop && <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />}
         <TiltCard className="magazine-tilt">
-          <button className="magazine-open" type="button" onClick={() => setLightboxOpen(true)} aria-label={`Открыть фото ${project.title} на весь экран`}>
+          <button className="magazine-open" type="button" onClick={openLightbox} aria-label={`Открыть фото ${project.title} на весь экран`}>
             <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
             <span className="magazine-open-hint" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="square">
@@ -364,7 +388,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
             </span>
           </button>
         </TiltCard>
-        <div className="magazine-controls">
+        <div className="magazine-controls" onPointerDown={(event) => event.stopPropagation()}>
           <button type="button" className="magazine-prev" aria-label="Предыдущий кадр" onClick={() => move(-1)}>←</button>
           <span>{String(activeMedia + 1).padStart(2, '0')} / {String(project.media.length).padStart(2, '0')}</span>
           <button type="button" className="magazine-next" aria-label="Следующий кадр" onClick={() => move(1)}>→</button>
@@ -376,7 +400,6 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
         <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий дом <Arrow diagonal /></a>
       </div>
     </div>
-    <div className="plan-spread"><div><p className="section-index">[ планировочное решение ]</p><h3>Сначала — <em>как вы живёте.</em><br />Потом — как выглядит дом.</h3><p>Схема временная и показывает логику подачи. Для реального проекта публикуем планы, фасады и ключевые узлы.</p></div><TiltCard className="plan-tilt"><ProjectPlan /></TiltCard></div>
     {lightboxOpen && <ProjectLightbox title={project.title} media={project.media} index={activeMedia} onClose={() => setLightboxOpen(false)} onMove={move} />}
   </section>
 }
@@ -384,7 +407,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
 function VideoReviews() {
   const [title, src, poster] = videoReviews[0]
   return <section id="videos" className="videos section-ink">
-    <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Дом лучше<br /><em>увидеть в движении.</em></h2></Reveal>
+    <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Видео наших работ</h2></Reveal>
     <div className="video-grid video-grid-single"><Reveal className="video-card" delay={0}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} onPlay={(event) => {
       const el = event.currentTarget
       if (el.dataset.ymTracked === '1') return
@@ -472,9 +495,8 @@ function App() {
   }) : fallbackProjects, [publicProjects])
   const phone = content?.settings.phone || content?.settings.phone_display || PHONE_DISPLAY
   const phoneLink = content?.settings.phone_href || `tel:${phone.replace(/\D/g, '').replace(/^8/, '+7')}` || PHONE_LINK
-  const telegram = content?.settings.telegram || content?.telegram_username || '@kitstroit'
-  const telegramLink = /^https?:\/\//.test(telegram) ? telegram : `https://t.me/${telegram.replace(/^@/, '')}`
-  const telegramLabel = /^https?:\/\//.test(telegram) ? telegram : `@${telegram.replace(/^@/, '')}`
+  const telegramLink = TELEGRAM_CHANNEL
+  const telegramLabel = '@kitstroit'
   const email = content?.settings.email || 'info@kitstroit.ru'
   const discussCta = hero?.cta_label || 'Обсудить строительство'
   const founderBody = founder?.body || 'Я лично знакомлюсь с каждым проектом и остаюсь на связи до передачи ключей и после неё. Для меня хороший дом — не эффектная картинка, а точная система, которая каждый день делает жизнь семьи проще.'
@@ -513,9 +535,9 @@ function App() {
 
       <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>участка.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, зададим несколько вопросов и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
-      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
+      <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer"><span>Max</span>kit_stroit</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
-    <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><a href="/privacy">Политика конфиденциальности</a></footer>
+    <footer><a className="logo" href="#top"><span>K</span><span>I</span><span>T</span></a><p>Строительство домов под ключ<br />в Санкт-Петербурге и Ленинградской области</p><p>© 2026 KIT. Все права защищены.</p><div className="footer-links"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}>Telegram</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer">Max</a><a href="/privacy">Политика конфиденциальности</a></div></footer>
     <div className={`mobile-cta${showMobileCta ? ' is-visible' : ''}`}><a href={phoneLink} onClick={onPhoneClick}>Позвонить</a><a href={hero?.cta_url || '#lead'} onClick={onCtaClick('mobile_calculate')}>{discussCta} <Arrow diagonal /></a></div>
   </div>
 }
