@@ -489,23 +489,6 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
     background: var(--bone);
     box-sizing: border-box;
   }
-  /* Mask the shared rail below the last node so it ends cleanly at the final dot. */
-  .process-card:last-child::after {
-    content: '';
-    position: absolute;
-    z-index: 1;
-    top: calc(.4rem + var(--process-dot));
-    right: auto;
-    bottom: 0;
-    left: 0;
-    width: var(--process-gutter);
-    border: 0;
-    border-radius: 0;
-    background: var(--bone);
-    background-size: auto;
-    animation: none;
-    pointer-events: none;
-  }
   .process-media {
     width: 100%;
     background: #d8d3c8;
