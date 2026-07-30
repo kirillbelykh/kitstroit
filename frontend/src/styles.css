@@ -406,7 +406,38 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   .projects > .section-head, .project-tabs, .plan-spread { margin-left: 1.25rem; margin-right: 1.25rem; }
   .project-tabs { gap: 1.8rem; margin-top: 4rem; }
   .magazine { display: flex; flex-direction: column; min-height: 0; }
-  .magazine-media { height: auto; aspect-ratio: 4 / 3; }
+  /* Mobile: keep original photo proportions — no cover crop in the inline gallery. */
+  .magazine-media {
+    aspect-ratio: auto;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--ink);
+  }
+  .magazine-media .magazine-tilt {
+    position: relative;
+    inset: auto;
+    display: block;
+  }
+  .magazine-media .magazine-tilt .t-tilt-card {
+    width: 100%;
+    height: auto;
+  }
+  .magazine-media .magazine-tilt .magazine-open {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .magazine-image {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+  }
   .magazine-media > img, .magazine-open { min-height: 0; }
   .magazine-open-hint { left: auto; right: 1rem; bottom: auto; top: 1rem; }
   .magazine-copy { min-height: 27rem; padding: 2.5rem 1.25rem; }
