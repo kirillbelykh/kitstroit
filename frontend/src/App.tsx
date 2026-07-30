@@ -339,7 +339,6 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const ignoreOpenClickRef = useRef(false)
   const project = projects[activeProject]
-  const coverCrop = activeMedia === 0 && /павлов/i.test(project.title)
   const selectProject = (index: number) => {
     setActiveProject(index)
     setActiveMedia(0)
@@ -372,12 +371,11 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
     <nav className="project-tabs" aria-label="Проекты">{projects.map((item, index) => <button key={item.title} aria-pressed={index === activeProject} onClick={() => selectProject(index)}><span>0{index + 1}</span>{item.title}</button>)}</nav>
     <div className="magazine">
       <div
-        className={`magazine-media${coverCrop ? ' is-cover' : ''}`}
+        className="magazine-media"
         onPointerDown={onGalleryPointerDown}
         onPointerUp={onGalleryPointerUp}
         onPointerCancel={() => { swipeRef.current = null }}
       >
-        {!coverCrop && <img className="magazine-backdrop" src={project.media[activeMedia]} alt="" aria-hidden="true" />}
         <TiltCard className="magazine-tilt">
           <button className="magazine-open" type="button" onClick={openLightbox} aria-label={`Открыть фото ${project.title} на весь экран`}>
             <img className="magazine-image" key={project.media[activeMedia]} src={project.media[activeMedia]} alt={`${project.title}, кадр ${activeMedia + 1}`} />
