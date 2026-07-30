@@ -485,7 +485,7 @@ function App() {
       title: project.title,
       place: project.location || 'Санкт-Петербург и ЛО',
       area: project.area ? `${project.area} м²` : '—',
-      status: ['pavlov-sky', 'dom-bezobrazova-repino'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
+      status: ['pavlov-sky', 'dom-bezobrazova-repino', 'olimpiyskaya', 'suzdalskoe-12'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
       summary: project.summary || fallback.summary,
       media: [...new Set(gallery.length ? gallery : fallback.media)],
       plan: fallback.plan,

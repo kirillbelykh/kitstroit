@@ -54,18 +54,29 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
             "SELECT COUNT(*) FROM project_media "
             "WHERE project_id = (SELECT id FROM projects WHERE slug = 'dom-bezobrazova-repino')"
         ).fetchone()[0]
+        olimpiyskaya_media = connection.execute(
+            "SELECT COUNT(*) FROM project_media "
+            "WHERE project_id = (SELECT id FROM projects WHERE slug = 'olimpiyskaya')"
+        ).fetchone()[0]
+        suzdalskoe_media = connection.execute(
+            "SELECT COUNT(*) FROM project_media "
+            "WHERE project_id = (SELECT id FROM projects WHERE slug = 'suzdalskoe-12')"
+        ).fetchone()[0]
         lead_columns = {
             row[1] for row in connection.execute("PRAGMA table_info(leads)")
         }
 
     assert section_keys == {"hero", "proof", "process", "guarantee", "founder", "lead"}
     assert setting_keys == {"phone", "phone_href", "telegram", "email", "work_hours", "region"}
-    assert len(projects) == 6
+    assert len(projects) == 8
     assert all(published for slug, _, published in projects if slug != "familia")
     assert any(slug == "familia" and not published for slug, _, published in projects)
+    assert {slug for slug, _, _ in projects} >= {"olimpiyskaya", "suzdalskoe-12", "pavlov-sky", "dom-bezobrazova-repino"}
     assert pavlov_media == 29
     assert familia_media == 17
     assert bezobrazov_media == 25
+    assert olimpiyskaya_media == 10
+    assert suzdalskoe_media == 19
     assert ATTRIBUTION_COLUMNS.issubset(lead_columns)
 
 
