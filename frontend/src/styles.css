@@ -709,21 +709,25 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   background: none;
   box-shadow: none;
 }
-.magazine-media .magazine-tilt {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-.magazine-media .magazine-tilt .t-tilt-card {
-  width: 100%;
-  height: 100%;
-  border-radius: 0;
-}
-.magazine-media .magazine-tilt .magazine-open {
-  position: relative;
-  inset: auto;
-  width: 100%;
-  height: 100%;
+/* Desktop/tablet: fill the fixed 4/3 frame. Must stay AFTER the mobile
+   uncropped rules — otherwise absolute positioning collapses height:auto. */
+@media (min-width: 621px) {
+  .magazine-media .magazine-tilt {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .magazine-media .magazine-tilt .t-tilt-card {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  .magazine-media .magazine-tilt .magazine-open {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+  }
 }
 .plan-tilt {
   width: 100%;
