@@ -45,6 +45,7 @@
 
 Перед первой задачей прочитать:
 
+- `docs/PROJECT_MAP.md` (карта проекта — читать первой);
 - `README.md`;
 - `docs/PRODUCT.md`;
 - `docs/DESIGN.md`;
@@ -53,6 +54,14 @@
 - `docs/OPERATIONS.md`;
 - этот файл;
 - определения своей роли в `.cursor/agents/`.
+
+Для обычных правок сайта достаточно `docs/PROJECT_MAP.md` + Mind; остальные docs — только если задача выходит за карту.
+
+## Память и skills
+
+- Долгая память: MCP **Mind**.
+- Не подключать лишние MCP и skill-packs (Superpowers, shadcn, Context7, Higgsfield и т.п.) для рутинных задач.
+- Базовые Cursor skills (`skills-cursor`) допустимы.
 
 ## Приоритеты до запуска рекламы
 
