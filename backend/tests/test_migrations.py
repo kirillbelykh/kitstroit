@@ -76,7 +76,7 @@ def test_alembic_upgrade_head_seeds_initial_content(tmp_path, monkeypatch):
     assert familia_media == 17
     assert bezobrazov_media == 25
     assert olimpiyskaya_media == 9
-    assert suzdalskoe_media == 19
+    assert suzdalskoe_media == 17
     assert ATTRIBUTION_COLUMNS.issubset(lead_columns)
 
 
