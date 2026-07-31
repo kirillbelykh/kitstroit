@@ -192,6 +192,30 @@ function cx(...parts: Array<string | false | undefined>) {
   return parts.filter(Boolean).join(' ')
 }
 
+type CharGroup = { startIndex: number; chars: string[] }
+
+function groupCharacters(text: string): CharGroup[] {
+  const characters = Array.from(text)
+  const groups: CharGroup[] = []
+  let chars: string[] = []
+  let startIndex = 0
+
+  characters.forEach((char, index) => {
+    if (/\s/.test(char)) {
+      if (chars.length) {
+        groups.push({ startIndex, chars })
+        chars = []
+      }
+      groups.push({ startIndex: index, chars: [char] })
+      return
+    }
+    if (!chars.length) startIndex = index
+    chars.push(char)
+  })
+  if (chars.length) groups.push({ startIndex, chars })
+  return groups
+}
+
 const TextAnimateBase = ({
   children,
   delay = 0,
@@ -226,82 +250,147 @@ const TextAnimateBase = ({
       break
   }
 
+  const step = duration / Math.max(segments.length, 1)
+  // Character mode nests glyphs in nowrap words, so staggerChildren cannot see them —
+  // drive delay from the glyph index on each span instead.
+  const useIndexDelay = by === 'character'
+
   // ponytail: ship full Magic UI preset map, but only blurInUp/character is wired on the homepage.
+  const preset = animation ? defaultItemAnimationVariants[animation] : null
   const finalVariants = variants
     ? {
         container: {
           hidden: { opacity: 0 },
           show: {
             opacity: 1,
-            transition: {
-              opacity: { duration: 0.01, delay },
-              delayChildren: delay,
-              staggerChildren: duration / Math.max(segments.length, 1),
-            },
+            transition: useIndexDelay
+              ? { opacity: { duration: 0.01, delay } }
+              : {
+                  opacity: { duration: 0.01, delay },
+                  delayChildren: delay,
+                  staggerChildren: step,
+                },
           },
           exit: {
             opacity: 0,
-            transition: {
-              staggerChildren: duration / Math.max(segments.length, 1),
-              staggerDirection: -1,
-            },
+            transition: useIndexDelay
+              ? undefined
+              : { staggerChildren: step, staggerDirection: -1 },
           },
         },
         item: variants,
       }
-    : animation
+    : preset
       ? {
           container: {
-            ...defaultItemAnimationVariants[animation].container,
+            ...preset.container,
             show: {
-              ...defaultItemAnimationVariants[animation].container.show,
-              transition: {
-                delayChildren: delay,
-                staggerChildren: duration / Math.max(segments.length, 1),
-              },
+              ...preset.container.show,
+              transition: useIndexDelay
+                ? undefined
+                : { delayChildren: delay, staggerChildren: step },
             },
             exit: {
-              ...defaultItemAnimationVariants[animation].container.exit,
-              transition: {
-                staggerChildren: duration / Math.max(segments.length, 1),
-                staggerDirection: -1,
-              },
+              ...preset.container.exit,
+              transition: useIndexDelay
+                ? undefined
+                : { staggerChildren: step, staggerDirection: -1 },
             },
           },
-          item: defaultItemAnimationVariants[animation].item,
+          item: preset.item,
         }
       : { container: defaultContainerVariants, item: defaultItemVariants }
 
+  const charGroups = by === 'character' ? groupCharacters(children) : null
+  const itemShow = finalVariants.item.show
+  const itemHidden = finalVariants.item.hidden
+  const itemShowTransition = (
+    itemShow
+    && typeof itemShow === 'object'
+    && 'transition' in itemShow
+    && itemShow.transition
+    && typeof itemShow.transition === 'object'
+  ) ? itemShow.transition : { duration: 0.3 }
+
   return (
     <AnimatePresence mode="popLayout">
-      <MotionComponent
-        variants={finalVariants.container as Variants}
-        initial="hidden"
-        whileInView={startOnView ? 'show' : undefined}
-        animate={startOnView ? undefined : 'show'}
-        exit="exit"
-        className={cx('whitespace-pre-wrap', className)}
-        viewport={{ once }}
-        aria-label={accessible ? children : undefined}
-        style={{ display: Component === 'strong' ? 'block' : undefined } as CSSProperties}
-        {...props}
-      >
-        {accessible && <span className="sr-only">{children}</span>}
-        {segments.map((segment, i) => (
-          <motion.span
-            key={`${by}-${segment}-${i}`}
-            variants={finalVariants.item}
-            custom={i * staggerTimings[by]}
-            className={cx(
-              by === 'line' ? 'block' : 'inline-block whitespace-pre',
-              segmentClassName,
-            )}
-            aria-hidden={accessible ? true : undefined}
-          >
-            {segment === ' ' ? '\u00a0' : segment}
-          </motion.span>
-        ))}
-      </MotionComponent>
+      {charGroups ? (
+        <MotionComponent
+          className={cx(className)}
+          aria-label={accessible ? children : undefined}
+          style={{ display: Component === 'strong' ? 'block' : undefined } as CSSProperties}
+          {...props}
+        >
+          {accessible && <span className="sr-only">{children}</span>}
+          {charGroups.map((group) => {
+            const isSpace = group.chars.length === 1 && /\s/.test(group.chars[0])
+            return (
+              <span
+                key={group.startIndex}
+                className={isSpace ? undefined : 'inline-block whitespace-nowrap'}
+                style={isSpace ? { whiteSpace: 'pre' } : undefined}
+              >
+                {group.chars.map((segment, offset) => {
+                  const i = group.startIndex + offset
+                  const hiddenState = (
+                    itemHidden && typeof itemHidden === 'object' && !Array.isArray(itemHidden)
+                      ? itemHidden
+                      : { opacity: 0, filter: 'blur(10px)', y: 20 }
+                  ) as { opacity?: number; filter?: string; y?: number }
+                  const showState = {
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                    y: 0,
+                  }
+                  return (
+                    <motion.span
+                      key={`${by}-${segment}-${i}`}
+                      initial={hiddenState}
+                      whileInView={startOnView ? showState : undefined}
+                      animate={startOnView ? undefined : showState}
+                      viewport={{ once }}
+                      transition={{ ...itemShowTransition, delay: delay + i * step }}
+                      className={cx('inline-block whitespace-pre', segmentClassName)}
+                      aria-hidden={accessible ? true : undefined}
+                    >
+                      {segment === ' ' ? '\u00a0' : segment}
+                    </motion.span>
+                  )
+                })}
+              </span>
+            )
+          })}
+        </MotionComponent>
+      ) : (
+        <MotionComponent
+          variants={finalVariants.container as Variants}
+          initial="hidden"
+          whileInView={startOnView ? 'show' : undefined}
+          animate={startOnView ? undefined : 'show'}
+          exit="exit"
+          className={cx(className)}
+          viewport={{ once }}
+          aria-label={accessible ? children : undefined}
+          style={{ display: Component === 'strong' ? 'block' : undefined } as CSSProperties}
+          {...props}
+        >
+          {accessible && <span className="sr-only">{children}</span>}
+          {segments.map((segment, i) => (
+            <motion.span
+              key={`${by}-${segment}-${i}`}
+              variants={finalVariants.item}
+              custom={i * staggerTimings[by]}
+              className={cx(
+                by === 'line' ? 'block' : 'inline-block whitespace-pre',
+                segmentClassName,
+              )}
+              aria-hidden={accessible ? true : undefined}
+            >
+              {segment === ' ' ? '\u00a0' : segment}
+            </motion.span>
+          ))}
+        </MotionComponent>
+      )}
     </AnimatePresence>
   )
 }
