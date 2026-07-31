@@ -165,11 +165,40 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 
 .videos { padding: 9rem 3vw 10rem; border-top: 1px solid var(--line-light); }
 .video-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem 1.4vw; margin-top: 7rem; }
-.video-grid-single { grid-template-columns: minmax(0, 42rem); }
 .video-card video { aspect-ratio: 16 / 9; object-fit: cover; background: var(--ink-soft); }
 .video-card > div { display: grid; grid-template-columns: 3rem 1fr; padding-top: 1rem; border-top: 1px solid var(--line-light); }
 .video-card span { font-size: .625rem; opacity: .48; }
 .video-card h3 { margin: 0; font-size: .9rem; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; }
+.video-soon {
+  display: grid;
+  place-content: center;
+  gap: .85rem;
+  aspect-ratio: 16 / 9;
+  padding: 1.5rem;
+  color: var(--bone);
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.04), transparent 55%),
+    #1c1e1a;
+  border: 1px solid rgba(233, 229, 218, .18);
+  text-align: center;
+}
+.video-soon p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(2.1rem, 3.2vw, 3.2rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+.video-soon > span {
+  display: block;
+  font-size: .62rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  opacity: .48;
+}
+.video-card-soon h3 { opacity: .58; }
 .more-videos { display: flex; align-items: center; justify-content: space-between; width: calc(50% - .7vw); min-height: 48px; margin: 5rem 0 0 auto; padding: 1.2rem 0; border: 0; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); color: inherit; background: transparent; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .more-videos span { font-family: var(--serif); font-size: 1.8rem; }
 

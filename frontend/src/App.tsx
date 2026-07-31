@@ -422,12 +422,24 @@ function VideoReviews() {
   const [title, src, poster] = videoReviews[0]
   return <section id="videos" className="videos section-ink">
     <Reveal className="section-head"><p className="section-index">[ 03 — видео ]</p><h2>Видео наших работ</h2></Reveal>
-    <div className="video-grid video-grid-single"><Reveal className="video-card" delay={0}><video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} onPlay={(event) => {
-      const el = event.currentTarget
-      if (el.dataset.ymTracked === '1') return
-      el.dataset.ymTracked = '1'
-      trackVideoStart(title)
-    }} /><div><span>01</span><h3>{title}</h3></div></Reveal></div>
+    <div className="video-grid">
+      <Reveal className="video-card" delay={0}>
+        <video aria-label={title} controls preload="metadata" playsInline poster={poster} src={src} onPlay={(event) => {
+          const el = event.currentTarget
+          if (el.dataset.ymTracked === '1') return
+          el.dataset.ymTracked = '1'
+          trackVideoStart(title)
+        }} />
+        <div><span>01</span><h3>{title}</h3></div>
+      </Reveal>
+      <Reveal className="video-card video-card-soon" delay={80}>
+        <div className="video-soon" role="status">
+          <p>Скоро</p>
+          <span>Новые обзоры в работе</span>
+        </div>
+        <div><span>02+</span><h3>Следующие видео · готовим</h3></div>
+      </Reveal>
+    </div>
   </section>
 }
 
