@@ -161,10 +161,9 @@ function Projects() {
     try {
       const method = 'id' in editing ? 'PATCH' : 'POST'
       const path = 'id' in editing ? `/admin/projects/${editing.id}` : '/admin/projects'
-      const saved = await api<Project>(path, { method, body: JSON.stringify(projectPayload(editing)) })
+      await api<Project>(path, { method, body: JSON.stringify(projectPayload(editing)) })
       setEditing(null)
       await load()
-      return saved
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Не удалось сохранить проект')
     } finally {
