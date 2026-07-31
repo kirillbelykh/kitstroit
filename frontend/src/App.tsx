@@ -26,7 +26,7 @@ function onCtaClick(cta: string) {
 type ContentSection = { key: string; eyebrow?: string; title?: string; body?: string; cta_label?: string; cta_url?: string; enabled?: boolean }
 type PublicProject = { id?: number; slug?: string; title: string; summary?: string; location?: string; area?: string | number; cover_url?: string; published?: boolean; media?: { url: string }[] }
 type PublicContent = { settings: Record<string, string>; sections: ContentSection[]; projects: PublicProject[]; telegram_username?: string }
-type Project = { title: string; place: string; area: string; status?: string; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
+type Project = { title: string; place: string; area: string; status?: string; kind: 'Дом' | 'Квартира'; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
 
 const MEDIA_CACHE_VERSION = '20260731b'
 const withMediaVersion = (url: string) => {
@@ -37,17 +37,17 @@ const withMediaVersion = (url: string) => {
 
 const fallbackProjects: Project[] = [
   {
-    title: 'Северный сад', place: 'Всеволожский район', area: '186 м²', plan: 'line',
+    title: 'Северный сад', place: 'Всеволожский район', area: '186 м²', plan: 'line', kind: 'Дом',
     summary: 'Одноэтажный каркасный дом с длинной террасой, общей гостиной и приватным крылом для семьи.',
     media: ['/media/generated/project-forest.webp', '/media/project-cabin.jpg', '/media/generated/project-interior.webp'],
   },
   {
-    title: 'Дом у воды', place: 'Ленинградская область', area: '214 м²', plan: 'courtyard',
+    title: 'Дом у воды', place: 'Ленинградская область', area: '214 м²', plan: 'courtyard', kind: 'Дом',
     summary: 'Дом раскрывается к воде: панорамная гостиная, защищённый внутренний двор и тёплый свет дерева.',
     media: ['/media/project-lake.jpg', '/media/interior-4k.webp', '/media/project-courtyard.jpg'],
   },
   {
-    title: 'Тихая терраса', place: 'Репино', area: '164 м²', plan: 'compact',
+    title: 'Тихая терраса', place: 'Репино', area: '164 м²', plan: 'compact', kind: 'Дом',
     summary: 'Компактный дом для постоянной жизни — без лишних коридоров, но с воздухом, светом и садом в каждом окне.',
     media: ['/media/project-cabin.jpg', '/media/generated/project-interior.webp', '/media/hero-wood-4k.webp'],
   },
@@ -405,7 +405,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       </div>
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3>
-        <dl><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>5 лет</dd></div></dl>
+        <dl><div><dt>Тип</dt><dd>{project.kind}</dd></div><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>5 лет</dd></div></dl>
         <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий проект <Arrow diagonal /></a>
       </div>
     </div>
@@ -503,6 +503,7 @@ function App() {
       place: project.location || 'Санкт-Петербург и ЛО',
       area: project.area ? `${project.area} м²` : '—',
       status: ['pavlov-sky', 'dom-bezobrazova-repino', 'olimpiyskaya', 'suzdalskoe-12'].includes(project.slug || '') ? 'Готовый объект' : 'Концепция',
+      kind: ['olimpiyskaya', 'suzdalskoe-12'].includes(project.slug || '') ? 'Квартира' : 'Дом',
       summary: '',
       media: [...new Set(gallery.length ? gallery : fallback.media)],
       plan: fallback.plan,
