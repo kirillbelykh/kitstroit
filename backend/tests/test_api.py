@@ -96,6 +96,52 @@ async def test_project_admin_crud_controls_public_content(client):
     assert content.json()["projects"][0]["media"][0]["url"] == "/media/forest.webp"
 
 
+async def test_admin_ui_project_payload_coerces_numeric_year_area(client):
+    """Admin form historically sent year/area as numbers; create/edit must accept them."""
+    await login(client)
+    created = await client.post(
+        "/api/admin/projects",
+        json={
+            "slug": "numeric-fields",
+            "title": "Числовые поля",
+            "summary": "",
+            "location": "ЛО",
+            "area": 186,
+            "year": 2026,
+            "cover_url": "",
+            "sort_order": 0,
+            "published": False,
+        },
+    )
+    assert created.status_code == 201, created.text
+    body = created.json()
+    assert body["area"] == "186"
+    assert body["year"] == "2026"
+    project_id = body["id"]
+
+    listed = await client.get("/api/admin/projects")
+    assert listed.status_code == 200
+    project = next(item for item in listed.json() if item["id"] == project_id)
+    project["title"] = "Обновлённый"
+    project["area"] = 200
+    project["year"] = 2025
+    patched = await client.patch(f"/api/admin/projects/{project_id}", json=project)
+    assert patched.status_code == 200, patched.text
+    assert patched.json()["title"] == "Обновлённый"
+    assert patched.json()["area"] == "200"
+    assert patched.json()["year"] == "2025"
+
+    deleted_media = await client.post(
+        f"/api/admin/projects/{project_id}/media",
+        json={"kind": "image", "url": "/media/numeric.webp", "alt": "x"},
+    )
+    assert deleted_media.status_code == 201
+    media_id = deleted_media.json()["id"]
+    removed = await client.delete(f"/api/admin/media/{media_id}")
+    assert removed.status_code == 204
+
+
+
 async def test_telegram_notification_escapes_lead_data(monkeypatch):
     from app import telegram
 

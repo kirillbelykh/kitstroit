@@ -26,6 +26,23 @@ export type LeadPayload = {
   first_referrer?: string
 }
 
+function formatApiDetail(detail: unknown): string {
+  if (typeof detail === 'string' && detail.trim()) return detail
+  if (Array.isArray(detail)) {
+    const parts = detail.map((item) => {
+      if (!item || typeof item !== 'object') return String(item)
+      const row = item as { msg?: unknown; loc?: unknown[] }
+      const loc = Array.isArray(row.loc)
+        ? row.loc.filter((part) => part !== 'body' && typeof part === 'string').join('.')
+        : ''
+      const msg = typeof row.msg === 'string' ? row.msg : 'Ошибка валидации'
+      return loc ? `${loc}: ${msg}` : msg
+    }).filter(Boolean)
+    if (parts.length) return parts.join('; ')
+  }
+  return 'Не удалось выполнить запрос'
+}
+
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const isForm = init?.body instanceof FormData
   const response = await fetch(`${API_ROOT}${path}`, {
@@ -39,7 +56,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const detail = await response.json().catch(() => null)
-    throw new Error(detail?.detail ?? 'Не удалось выполнить запрос')
+    throw new Error(formatApiDetail(detail?.detail))
   }
 
   if (response.status === 204) return undefined as T
