@@ -203,6 +203,7 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 .proof { position: relative; padding: 9rem 3vw 7rem; border-top: 1px solid var(--line-dark); }
 .proof-intro { display: grid; grid-template-columns: 25% 75%; align-items: start; }
 .proof-intro h2 { max-width: 1100px; }
+.proof-intro h2 > span { display: inline; }
 .proof-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 8rem; border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
 .metric { display: flex; flex-direction: column; align-items: flex-start; min-height: 16rem; padding: 1.4rem 1.5rem 1.7rem 0; border-right: 1px solid var(--line-dark); }
 .metric:last-child { border-right: 0; }

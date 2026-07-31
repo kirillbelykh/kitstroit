@@ -4,7 +4,9 @@ import { BorderBeam } from 'border-beam'
 import { Arrow, LeadForm, MediaImage, PHONE_DISPLAY, PHONE_LINK, Reveal } from './components'
 import { IconSwap } from './components/IconSwap'
 import { NumberPopIn } from './components/NumberPopIn'
+import StaggerFromCenter from './components/StaggerFromCenter'
 import { StaggerReveal } from './components/StaggerReveal'
+import { TextAnimate } from './components/TextAnimate'
 import { api } from './api'
 import { setPendingCta, trackCtaClick, trackFaqOpen, trackPhoneClick, trackProjectOpen, trackTelegramClick, trackVideoStart } from './analytics'
 
@@ -73,6 +75,9 @@ const advantages = [
   ['Контроль работ', 'Календарный план, фотоотчёты и акты на скрытые работы — ход стройки и отделки виден на каждом этапе.'],
   ['Один ответственный подрядчик', 'Один договор, одна команда и личная ответственность до передачи объекта.'],
 ] as const
+
+const PROOF_HEADLINE = 'Красиво — значит ещё и предсказуемо.'
+const PROOF_EMPHASIS_FROM = PROOF_HEADLINE.indexOf('предсказуемо.')
 
 const faqs = [
   ['Можно ли работать по нашему проекту?', 'Да. Проверим проект дома или дизайн-проект квартиры, адаптируем к условиям объекта. Если проекта нет — поможем подготовить решения с нуля.'],
@@ -543,7 +548,27 @@ function App() {
       <VideoReviews />
       <ProcessSection eyebrow={process?.eyebrow} title={process?.title} body={processBody} />
 
-      <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 05 — преимущества ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{advantages.map(([title, text], i) => <Reveal key={title} className={`metric${title === 'Поэтапная оплата' ? ' metric-accent' : ''}`} delay={i * 60}><span className="metric-index">0{i + 1}</span><strong>{title}</strong><p>{text}</p></Reveal>)}</div></section>
+      <section className="proof section-light grid-lines">
+        <div className="proof-intro">
+          <p className="section-index">[ 05 — преимущества ]</p>
+          <h2>
+            <StaggerFromCenter triggerOnView emphasisFrom={PROOF_EMPHASIS_FROM}>
+              {PROOF_HEADLINE}
+            </StaggerFromCenter>
+          </h2>
+        </div>
+        <div className="proof-grid">
+          {advantages.map(([title, text], i) => (
+            <Reveal key={title} className={`metric${title === 'Поэтапная оплата' ? ' metric-accent' : ''}`} delay={i * 60}>
+              <span className="metric-index">0{i + 1}</span>
+              <TextAnimate animation="blurInUp" by="character" once as="strong" delay={0.12 + i * 0.08}>
+                {title}
+              </TextAnimate>
+              <p>{text}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
       <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 06 — договор ]'}</p><h2>{guarantee?.title?.replace(/гарантия 10 лет/i, 'гарантия 5 лет') || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>5</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
