@@ -28,7 +28,7 @@ type PublicProject = { id?: number; slug?: string; title: string; summary?: stri
 type PublicContent = { settings: Record<string, string>; sections: ContentSection[]; projects: PublicProject[]; telegram_username?: string }
 type Project = { title: string; place: string; area: string; status?: string; summary: string; media: string[]; plan: 'line' | 'courtyard' | 'compact' }
 
-const MEDIA_CACHE_VERSION = '20260731a'
+const MEDIA_CACHE_VERSION = '20260731b'
 const withMediaVersion = (url: string) => {
   if (!url.startsWith('/media/')) return url
   const join = url.includes('?') ? '&' : '?'
