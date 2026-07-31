@@ -326,10 +326,9 @@ const TextAnimateBase = ({
             const isSpace = group.chars.length === 1 && /\s/.test(group.chars[0])
             return (
               <span
-                key={group.startIndex}
-                className={isSpace ? undefined : 'inline-block whitespace-nowrap'}
-                style={isSpace ? { whiteSpace: 'pre' } : undefined}
-              >
+                  key={group.startIndex}
+                  className={isSpace ? 'stagger-space' : 'stagger-word'}
+                >
                 {group.chars.map((segment, offset) => {
                   const i = group.startIndex + offset
                   const hiddenState = (
