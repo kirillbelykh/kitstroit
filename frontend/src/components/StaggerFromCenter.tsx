@@ -75,10 +75,7 @@ export default function StaggerFromCenter({
         return (
           <span
             key={group.startIndex}
-            style={{
-              display: 'inline-block',
-              whiteSpace: isSpace ? 'pre' : 'nowrap',
-            }}
+            className={isSpace ? 'stagger-space' : 'stagger-word'}
           >
             {group.chars.map((char, offset) => {
               const index = group.startIndex + offset
