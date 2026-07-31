@@ -9,6 +9,15 @@ KEY_RE = re.compile(r"^[a-z][a-z0-9_-]{1,99}$")
 SLUG_RE = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
+def _as_str(value: Any) -> Any:
+    """Admin forms may send year/area as numbers; store as strings."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return str(int(value)) if isinstance(value, float) and value.is_integer() else str(value)
+    return value
+
+
 class ApiModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -129,6 +138,11 @@ class MediaBase(BaseModel):
     sort_order: int = Field(default=0, ge=-10_000, le=10_000)
     extra: dict[str, Any] = Field(default_factory=dict)
 
+    @field_validator("extra", mode="before")
+    @classmethod
+    def coerce_extra(cls, value: Any) -> Any:
+        return {} if value is None else value
+
 
 class MediaCreate(MediaBase):
     pass
@@ -159,6 +173,11 @@ class ProjectBase(BaseModel):
     sort_order: int = Field(default=0, ge=-10_000, le=10_000)
     published: bool = False
 
+    @field_validator("area", "year", mode="before")
+    @classmethod
+    def coerce_string_fields(cls, value: Any) -> Any:
+        return _as_str(value)
+
     @field_validator("slug")
     @classmethod
     def validate_slug(cls, value: str) -> str:
@@ -181,6 +200,11 @@ class ProjectUpdate(BaseModel):
     cover_url: str | None = Field(default=None, max_length=500)
     sort_order: int | None = Field(default=None, ge=-10_000, le=10_000)
     published: bool | None = None
+
+    @field_validator("area", "year", mode="before")
+    @classmethod
+    def coerce_string_fields(cls, value: Any) -> Any:
+        return _as_str(value)
 
     @field_validator("slug")
     @classmethod
