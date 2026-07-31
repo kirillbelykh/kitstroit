@@ -267,7 +267,7 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 .contacts-grid { display: grid; grid-template-columns: repeat(5, 1fr); }
 .contacts-grid > * { margin: 0; padding-right: 2rem; font-size: .92rem; }
 .contacts-grid span { display: block; margin-bottom: .9rem; font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; opacity: .55; }
-footer { display: grid; grid-template-columns: 25% 35% 25% 15%; align-items: end; padding: 3rem 3vw 5.5rem; color: var(--bone); background: var(--ink); border-top: 1px solid var(--line-light); }
+footer { display: grid; grid-template-columns: 18% 28% 22% 17% 15%; align-items: end; padding: 3rem 3vw 5.5rem; color: var(--bone); background: var(--ink); border-top: 1px solid var(--line-light); }
 footer p, footer > a:last-child, .footer-links a { margin: 0; font-size: .7rem; line-height: 1.5; opacity: .6; }
 footer > a:last-child, .footer-links a { display: flex; align-items: center; min-height: 44px; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: .15rem; }
