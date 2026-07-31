@@ -472,6 +472,25 @@ function App() {
   const heroRef = useRef<HTMLElement>(null)
   useEffect(() => { api<PublicContent>('/content').then(setContent).catch(() => undefined) }, [])
   useEffect(() => {
+    // Lock hero height once on phones. Updating on every resize (Safari chrome
+    // show/hide) makes background-size:cover zoom and the page jump.
+    const root = document.documentElement
+    const lockHeroVh = () => {
+      if (window.matchMedia('(max-width: 620px)').matches) {
+        root.style.setProperty('--hero-vh', `${window.innerHeight}px`)
+      } else {
+        root.style.removeProperty('--hero-vh')
+      }
+    }
+    lockHeroVh()
+    const onOrientation = () => { window.setTimeout(lockHeroVh, 250) }
+    window.addEventListener('orientationchange', onOrientation)
+    return () => {
+      window.removeEventListener('orientationchange', onOrientation)
+      root.style.removeProperty('--hero-vh')
+    }
+  }, [])
+  useEffect(() => {
     const heroElement = heroRef.current
     if (!heroElement) return
     const observer = new IntersectionObserver(([entry]) => setShowMobileCta(!entry.isIntersecting), { threshold: .05 })
