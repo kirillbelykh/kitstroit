@@ -11,6 +11,7 @@ const STAGE_OPTIONS = [
   'Выбираю участок',
   'Есть готовый проект',
   'Нужен проект с нуля',
+  'Отделка квартиры',
 ] as const
 
 export function Arrow({ diagonal = false }: { diagonal?: boolean }) {
@@ -109,7 +110,7 @@ export function LeadForm({ compact = false }: { compact?: boolean }) {
       <label><span>02 / Телефон</span><input name="phone" required type="tel" autoComplete="tel" placeholder="+7 ___ ___ __ __" /></label>
       {!compact && <>
         <label><span>03 / На каком этапе вы находитесь?</span><select name="project_type" defaultValue={STAGE_OPTIONS[0]}>{STAGE_OPTIONS.map((option) => <option key={option}>{option}</option>)}</select></label>
-        <label className="wide"><span>04 / О проекте</span><textarea name="message" rows={3} placeholder="Участок, площадь, пожелания — если уже известны" /></label>
+        <label className="wide"><span>04 / О проекте</span><textarea name="message" rows={3} placeholder="Участок или квартира, площадь, пожелания" /></label>
       </>}
       <div className="form-action wide">
         <button className="button button-solid" disabled={status === 'sending'}>{status === 'sending' ? 'Отправляем…' : 'Отправить заявку'} <Arrow diagonal /></button>

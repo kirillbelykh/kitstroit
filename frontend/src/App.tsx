@@ -78,7 +78,9 @@ const faqs = [
   ['Можно ли работать по нашему проекту?', 'Да. Проверим проект дома или дизайн-проект квартиры, адаптируем к условиям объекта. Если проекта нет — поможем подготовить решения с нуля.'],
   ['Смета действительно не меняется?', 'Стоимость и состав работ фиксируем в договоре. Изменения возможны только по вашему решению и оформляются отдельным соглашением.'],
   ['Как контролировать ход работ?', 'У вас будет календарный план, закреплённый ответственный и регулярные фотоотчёты. Скрытые работы принимаются по актам.'],
-  ['Какая гарантия на работы?', 'Даём письменную гарантию 10 лет на выполненные работы и остаёмся на связи после сдачи дома или квартиры.'],
+  ['Какая гарантия на работы?', 'Даём письменную гарантию 5 лет на выполненные работы и остаёмся на связи после сдачи дома или квартиры.'],
+  ['Делаете ли вы отделку квартир?', 'Да. Отделка под ключ в Санкт-Петербурге: по вашему дизайн-проекту или разработаем свой. Та же система — фиксированная смета, поэтапная оплата, фотоотчёты и гарантия 5 лет.'],
+  ['Сколько длится ремонт квартиры?', 'Срок фиксируется в календарном плане договора и зависит от площади и объёма работ. Назовём его после осмотра объекта.'],
 ]
 
 function Header({ phone, phoneLink }: { phone: string; phoneLink: string }) {
@@ -403,7 +405,7 @@ function ProjectMagazine({ projects }: { projects: Project[] }) {
       </div>
       <div className="magazine-copy">
         <p className="section-index">{project.place}</p><h3>{project.title}</h3>
-        <dl><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>10 лет</dd></div></dl>
+        <dl><div><dt>Площадь</dt><dd><NumberPopIn value={project.area} /></dd></div><div><dt>Статус</dt><dd>{project.status || 'Концепция'}</dd></div><div><dt>Гарантия</dt><dd>5 лет</dd></div></dl>
         <a className="text-arrow" href="#lead" onClick={onCtaClick('project_discuss')}>Обсудить похожий проект <Arrow diagonal /></a>
       </div>
     </div>
@@ -542,11 +544,11 @@ function App() {
 
       <section className="proof section-light grid-lines"><Reveal className="proof-intro"><p className="section-index">[ 05 — преимущества ]</p><h2>Красиво — значит ещё и <em>предсказуемо.</em></h2></Reveal><div className="proof-grid">{advantages.map(([title, text], i) => <Reveal key={title} className={`metric${title === 'Поэтапная оплата' ? ' metric-accent' : ''}`} delay={i * 60}><span className="metric-index">0{i + 1}</span><strong>{title}</strong><p>{text}</p></Reveal>)}</div></section>
 
-      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 06 — договор ]'}</p><h2>{guarantee?.title || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>10</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
+      <section className="guarantees section-ink grid-lines"><Reveal className="section-head"><p className="section-index">{guarantee?.eyebrow || '[ 06 — договор ]'}</p><h2>{guarantee?.title?.replace(/гарантия 10 лет/i, 'гарантия 5 лет') || <>Не мелкий шрифт.<br /><em>А ясные правила.</em></>}</h2></Reveal><div className="guarantee-layout"><Reveal className="guarantee-big"><strong>5</strong><span>лет<br />гарантии</span><p>{guarantee?.body || 'Письменно. На все выполненные работы.'}</p></Reveal><div className="guarantee-list">{[['Цена', 'Смета фиксируется в договоре. Без скрытых платежей.'], ['Сроки', 'Поэтапный календарный план и ответственность сторон.'], ['Контроль', 'Фотоотчёты и акты на скрытые работы.'], ['Команда', 'Закреплённый прораб и свои мастера.']].map(([title, text], i) => <Reveal className="guarantee-item" key={title} delay={i * 60}><span>0{i + 1}</span><h3>{title}</h3><p>{text}</p></Reveal>)}</div></div></section>
 
       <section className="faq section-light grid-lines"><Reveal className="section-head"><p className="section-index">[ 07 — коротко о важном ]</p><h2>Частые<br /><em>вопросы.</em></h2></Reveal><div className="faq-list">{faqs.map(([question, answer], i) => <FaqItem key={question} question={question} answer={answer} index={i} />)}</div></section>
 
-      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашей <em>задачи.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, уточним дом или квартиру и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
+      <section id="lead" className="lead section-brass grid-lines"><Reveal className="lead-copy"><p className="section-index">{lead?.eyebrow || '[ 08 — первый шаг ]'}</p><h2>{lead?.title || <>Начнём с вашего <em>проекта.</em></>}</h2><p>{lead?.body || 'Оставьте номер — перезвоним, уточним дом или квартиру и сориентируем по срокам и бюджету.'}</p></Reveal><Reveal className="lead-form-wrap"><LeadForm /></Reveal></section>
 
       <section id="contacts" className="contacts section-ink"><p className="section-index">{contacts?.eyebrow || '[ прямой контакт ]'}</p><a className="contact-phone" href={phoneLink} onClick={onPhoneClick}>{phone} <Arrow diagonal /></a><div className="contacts-grid"><a href={telegramLink} target="_blank" rel="noreferrer" onClick={onTelegramClick}><span>Telegram</span>{telegramLabel}</a><a href={MAX_CHANNEL} target="_blank" rel="noreferrer"><span>Max</span>kit_stroit</a><a href={`mailto:${email}`}><span>Email</span>{email}</a><p><span>Часы работы</span>{content?.settings.work_hours || 'Ежедневно · 09:00–21:00'}</p><p><span>География</span>{content?.settings.region || 'Санкт-Петербург и ЛО'}</p></div></section>
     </main>
