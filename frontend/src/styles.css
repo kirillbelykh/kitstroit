@@ -71,7 +71,7 @@ h1 em, h2 em, h3 em { font-family: var(--serif); font-weight: 400; }
 .arrow-diagonal { transform: rotate(-45deg); }
 a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg) translateX(4px); }
 
-.hero { position: relative; min-height: 100svh; color: var(--bone); isolation: isolate; background: #253039; }
+.hero { position: relative; min-height: var(--hero-vh, 100svh); color: var(--bone); isolation: isolate; background: #253039; }
 .hero-media, .hero-slide { position: absolute; inset: 0; }
 .hero-media { z-index: -3; overflow: hidden; background: #253039; }
 .hero-slide { opacity: 0; background-position: center; background-size: cover; background-repeat: no-repeat; transform: translateZ(0); backface-visibility: hidden; animation: hero-slideshow 18s infinite ease-in-out; }
@@ -84,7 +84,7 @@ a:hover .arrow-diagonal, button:hover .arrow-diagonal { transform: rotate(-45deg
 /* 5 slides × 6s: hold ~5s, crossfade into the next */
 @keyframes hero-slideshow-mobile { 0%, 16.5% { opacity: 1; } 19.5%, 95% { opacity: 0; } 100% { opacity: 1; } }
 .hero-topline { position: absolute; top: 112px; left: 3vw; right: 3vw; display: flex; justify-content: space-between; font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; opacity: .78; }
-.hero-content { display: flex; flex-direction: column; justify-content: flex-end; min-height: 100svh; padding: 10rem 3vw 3.2rem; }
+.hero-content { display: flex; flex-direction: column; justify-content: flex-end; min-height: var(--hero-vh, 100svh); padding: 10rem 3vw 3.2rem; }
 .hero h1, .hero-title { max-width: 14ch; margin: 1.9rem 0 2.5rem; font-family: var(--serif); font-size: clamp(3.4rem, 5vw, 6.2rem); font-style: italic; font-weight: 400; letter-spacing: -.045em; line-height: .92; text-wrap: balance; }
 .hero-bottom { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 2rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.3); }
 .hero-bottom > p { max-width: 34rem; margin: 0; font-size: clamp(.9rem, 1.1vw, 1.12rem); line-height: 1.5; }
@@ -363,7 +363,7 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
   .site-header { height: 68px; }
   .header-phone { font-size: .65rem; }
   .header-logo { transform: none; }
-  .hero { min-height: 100svh; min-height: 100dvh; }
+  .hero { min-height: var(--hero-vh, 100svh); }
   .hero-slide {
     animation-name: hero-slideshow-mobile;
     animation-duration: 30s;
@@ -382,10 +382,10 @@ footer > a:last-child, .footer-links a { display: flex; align-items: center; min
     background-position: 48% center;
     animation-delay: 24s;
   }
-  /* Pin hero copy to the visible bottom (above Safari chrome), not mid-photo. */
+  /* Pin copy to bottom; height is locked via --hero-vh so Safari chrome
+     show/hide on scroll cannot resize background-size: cover. */
   .hero-content {
-    min-height: 100svh;
-    min-height: 100dvh;
+    min-height: var(--hero-vh, 100svh);
     justify-content: flex-end;
     padding: 5rem 1.25rem max(1.5rem, calc(env(safe-area-inset-bottom, 0px) + 1.1rem));
     box-sizing: border-box;
