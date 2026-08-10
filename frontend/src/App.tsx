@@ -571,7 +571,7 @@ function App() {
 
       <section id="founder" className="founder section-light">
         <div className="founder-intro"><p className="section-index">{founder?.eyebrow || '[ 01 — знакомство ]'}</p><h2>За каждым домом<br />стоит <em>личная ответственность.</em></h2></div>
-        <div className="founder-media"><MediaImage src="/media/founder.jpg?v=20260726" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
+        <div className="founder-media"><MediaImage src="/media/process-nikita.webp?v=20260727" alt="Савин Никита, основатель компании KIT" /><span className="founder-tag">Основатель KIT · Савин Никита</span></div>
         <Reveal className="founder-copy"><h3>Никита Савин <span>основатель компании</span></h3><p>{founderBody}</p><p>Отец четверых детей, живу за городом и хорошо понимаю цену удобной планировки, спокойной стройки и решений, о которых не приходится жалеть.</p><a className="text-arrow" href={founder?.cta_url || '#lead'} onClick={onCtaClick('founder_discuss')}>{founder?.cta_label || 'Обсудить дом с Никитой'} <Arrow diagonal /></a></Reveal>
       </section>
 
