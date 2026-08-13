@@ -1,0 +1,18 @@
+---
+description: Load project map first; keep agent lean (Mind only, no skill packs)
+alwaysApply: true
+---
+
+# Project map first
+
+Before exploring the codebase for a normal site/CMS/gallery/copy task:
+
+1. Read `docs/PROJECT_MAP.md`
+2. Load Mind project context / search (if Mind MCP is available)
+3. Only then open files named by the map or the owner request
+
+Do **not** re-audit architecture, design system, or the whole homepage unless the task requires it.
+
+Do **not** invoke Superpowers, brainstorming, ui-ux-pro-max, design-taste, frontend-design skill packs, or other non-basic Cursor skills. Basic Cursor skills under `skills-cursor` are allowed when needed.
+
+MCP: use **Mind** for durable memory. Do not depend on Serena/shadcn/Context7/Higgsfield for KIT routine work.
