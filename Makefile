@@ -5,7 +5,7 @@ dev:
 
 test:
 	cd backend && uv run pytest
-	cd frontend && npm run build
+	cd frontend && npm ci && npm run build
 
 build:
 	docker compose build

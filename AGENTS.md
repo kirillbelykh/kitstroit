@@ -1,4 +1,4 @@
-# KIT AI operating contract
+# Правила работы AI-агентов в KIT
 
 Владелец проекта: Кирилл.
 
